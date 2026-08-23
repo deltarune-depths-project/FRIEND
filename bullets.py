@@ -4,6 +4,7 @@ from arcade.examples.sprite_health import sprite_off_screen
 from arcade.hitbox import HitBox
 
 import settings
+from graphics_objects import AnimationState
 
 
 class Bullet(Sprite):
@@ -87,4 +88,80 @@ class BlackDiamondBullet(Bullet):
         if self.alpha < 255:
             self.alpha = min(self.alpha + (delta_time * 512), 255)
 
-        self.center_y = self.center_y - ((2 * (self.time ** 2) - 1))
+        self.center_y = self.center_y - (2 * (self.time ** 2) - 1)
+
+
+class CatBullet(Bullet):
+    """
+    Little cat bullets that interact with the player during the FRIEND fight.
+    """
+
+    def __init__(self, center_x: float = 0.0, center_y: float = 0.0, angle: float = 0.0,
+                 sprites_and_effects_collection = None, scale: float = 1.0, attacker = None, soul = None):
+        super().__init__(
+            path_or_texture="assets/sprites/bullets/rudinn_diamond.png",
+            center_x=center_x,
+            center_y=center_y,
+            angle=angle,
+            scale=scale,
+            attacker=attacker,
+            element_id=6
+        )
+
+        self.sprites_and_effects_collection = sprites_and_effects_collection
+        self.soul = soul
+
+        self.animation_states = [
+            AnimationState(
+                textures=sprites_and_effects_collection.cat_bullet_textures["idle"],
+                name="idle",
+                is_looping=True,
+                framerate=1.0
+            ),
+            AnimationState(
+                textures=sprites_and_effects_collection.cat_bullet_textures["walking"],
+                name="walking",
+                is_looping=True,
+                framerate=0.2
+            ),
+            AnimationState(
+                textures=sprites_and_effects_collection.cat_bullet_textures["dancing"],
+                name="dancing",
+                is_looping=True,
+                framerate=0.15
+            ),
+            AnimationState(
+                textures=sprites_and_effects_collection.cat_bullet_textures["pouncing"],
+                name="pouncing",
+                is_looping=True,
+                framerate=1.0
+            )
+        ]
+
+        if sprites_and_effects_collection is not None:
+            self.textures = sprites_and_effects_collection.cat_bullet_textures["idle"]
+            self.set_texture(0)
+
+        # Variables that control the movement of the cat
+        self.minimum_height = int(settings.WINDOW_HEIGHT * .25)
+        self.gravity = 1.0 # The acceleration per frame of the sprite
+
+    def update_animation(self, delta_time: float = settings.FRAMERATE):
+        return
+
+        if self.is_jumping:
+            self.change_y -= self.gravity
+        else:
+            pass
+
+    def change_state(self, new_state: str = "idle"):
+        """
+        Changes the state of the cat, as well as its associated animation.
+        :param new_state:
+        :return:
+        """
+        for state in self.animation_states:
+            if state.name == new_state:
+                self.textures = state.textures
+                self.set_texture(0)
+                break

@@ -2,17 +2,13 @@ from enum import Enum, auto
 
 import arcade.color
 import pyglet
-from arcade import SpriteList
-from arcade.gui import UIManager
 
 import character
-import non_player_character
 import player_character
-import sprites_and_effects_collection
-from act import Act, SimpleAct
+from act import Act
 from animations.battle_animations import NumberBounceAnimation, EnemySparedAnimation, TPGainAnimation
 from animations.common_animations import FadeInFadeOutColorAnimation
-from dialogue_box import TextBoxDialog, BattleTextBoxDialog
+from dialogue_box import BattleTextBoxDialog
 from items.consumable_items import ConsumableItem
 from spells import Spell
 

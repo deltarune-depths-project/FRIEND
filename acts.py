@@ -171,7 +171,7 @@ class RudinnDualHeal(MultiUserAct):
 # Magic user acts
 class NoelleRudinnAction1(MagicUserAct):
     def __init__(self, player):
-        from non_player_character import Rudinn  # TODO: fix this
+        from non_player_characters import Rudinn  # TODO: fix this
 
         super().__init__(
             player=player,
@@ -194,7 +194,7 @@ class NoelleRudinnAction1(MagicUserAct):
 
 class RalseiRudinnAction1(MagicUserAct):
     def __init__(self, player):
-        from non_player_character import Rudinn
+        from non_player_characters import Rudinn
 
         super().__init__(
             player=player,
@@ -217,7 +217,7 @@ class RalseiRudinnAction1(MagicUserAct):
 
 class SusieRudinnAction1(MagicUserAct):
     def __init__(self, player):
-        from non_player_character import Rudinn
+        from non_player_characters import Rudinn
 
         super().__init__(
             player=player,

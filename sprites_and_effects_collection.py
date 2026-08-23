@@ -3,6 +3,7 @@ from arcade import Camera2D, SpriteList
 from arcade.gui import UIManager
 
 from text_texture_dicts import BattleMessageTextureDict, BattleMessageImageDict, DWDefaultTextureDict
+from texture_methods import load_textures_at_filepath_into_texture_array
 
 
 class SpritesAndEffectsCollection:
@@ -42,6 +43,14 @@ class SpritesAndEffectsCollection:
         self.battle_message_texture_dict = BattleMessageTextureDict()
         self.battle_message_image_dict = BattleMessageImageDict()
         self.dw_default_font_texture_dict = DWDefaultTextureDict()
+
+        # Textures that I would prefer to just load once to reference when needed
+        self.cat_bullet_textures = {
+            "idle": load_textures_at_filepath_into_texture_array("assets/sprites/bullets/cat/idle"),
+            "walking": load_textures_at_filepath_into_texture_array("assets/sprites/bullets/cat/walking"),
+            "dancing": load_textures_at_filepath_into_texture_array("assets/sprites/bullets/cat/dance"),
+            "pouncing": load_textures_at_filepath_into_texture_array("assets/sprites/bullets/cat/pounce")
+        }
 
     def draw(self):
         """ Calls the draw function on all the sprite lists contained in this object. """

@@ -7,6 +7,7 @@ from arcade.types import Color
 import math_methods
 import music_player
 import non_player_character
+import non_player_characters
 import player_character
 import player_characters
 import settings
@@ -233,7 +234,7 @@ class GameView(arcade.View):
         self.enemies.append(self.enemy_one)
         """
 
-        self.enemy_two = non_player_character.FRIEND(
+        self.enemy_two = non_player_characters.FRIEND(
             sprites_and_effects_collection=self.sprites_and_effects_collection,
             center_x=self._unholy_arc[1][0] - 50,
             center_y=self._unholy_arc[1][1],

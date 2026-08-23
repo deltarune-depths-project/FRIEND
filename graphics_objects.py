@@ -138,3 +138,35 @@ class SingleSpriteAnimation:
     # Communicates to parent animation lists to remove this animation.
     def terminate_animation(self):
         self.is_terminated = True
+
+
+class AnimationState:
+    def __init__(self, textures: list[Texture], name: str = "idle", framerate: float = 0.15, is_looping: bool = True):
+        self.textures = textures
+        self.name = name
+        self.framerate = framerate
+        self.is_looping = is_looping
+
+    def get_textures(self):
+        return self.textures
+
+    def set_textures(self, textures: list[Texture]):
+        self.textures = textures
+
+    def get_name(self):
+        return self.name
+
+    def get_framerate(self):
+        return self.framerate
+
+    def set_framerate(self, framerate: float):
+        self.framerate = framerate
+
+    def get_is_looping(self):
+        return self.is_looping
+
+    def set_is_looping(self, is_looping: bool):
+        self.is_looping = is_looping
+
+    def get_number_of_textures(self):
+        return len(self.textures)
