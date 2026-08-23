@@ -7,9 +7,9 @@ import settings
 
 class BulletBoard:
     def __init__(self):
-        self.bullet_board_image = Image.new("RGBA", (150, 150))
+        self.bullet_board_image = Image.new("RGBA", (300, 200))
         self.draw = ImageDraw.Draw(self.bullet_board_image)
-        self.draw.rectangle((0, 0, 149, 149), outline=(0, 192, 0, 255), fill=(0, 0, 0, 255), width=4)
+        self.draw.rectangle((0, 0, 300, 200), outline=(0, 192, 0, 255), fill=(0, 0, 0, 255), width=4)
         self.bullet_board_texture = Texture(self.bullet_board_image)
         self.bullet_board_sprite = Sprite(
             path_or_texture=self.bullet_board_texture,

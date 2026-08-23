@@ -115,7 +115,8 @@ class CatBullet(Bullet):
             angle=angle,
             scale=scale,
             attacker=attacker,
-            element_id=6
+            element_id=6,
+            tp_gain=4.0
         )
 
         self.sprites_and_effects_collection = sprites_and_effects_collection
@@ -141,7 +142,7 @@ class CatBullet(Bullet):
                 textures=sprites_and_effects_collection.cat_bullet_textures["dancing"],
                 name="dancing",
                 is_looping=True,
-                framerate=0.15
+                framerate=0.06
             ),
             AnimationState(
                 textures=sprites_and_effects_collection.cat_bullet_textures["pouncing"],
@@ -153,7 +154,7 @@ class CatBullet(Bullet):
 
         self.current_animation_state = self.animation_states[0]
 
-        self.state = CatState.WALKING
+        self.state = CatState.IDLE
 
         self.valid_states = {
             "idle": CatState.IDLE,
@@ -163,7 +164,7 @@ class CatBullet(Bullet):
         }
 
         if sprites_and_effects_collection is not None:
-            self.textures = sprites_and_effects_collection.cat_bullet_textures["walking"]
+            self.textures = sprites_and_effects_collection.cat_bullet_textures["idle"]
             self.set_texture(0)
 
         # Internal variables used to track the animation of the cat
@@ -171,11 +172,16 @@ class CatBullet(Bullet):
         self.current_texture_index = 0
 
         # Variables that control the movement of the cat
+        self.normalized_center_x = self.center_x
+        self.normalized_center_y = self.center_y
         self.minimum_height = int(settings.WINDOW_HEIGHT / 3)  # The "floor" that the cat walks and lands on
         self.gravity = 0.5 # The acceleration per frame of the sprite
         self.jump_velocity = 20.0 # The velocity of the cat's jump
-        self.duration_between_landing_and_jumping = 2.0  # The amount of time before the next jump in seconds
-        self.seconds_before_next_jump = self.duration_between_landing_and_jumping - random.random()
+        self.duration_between_landing_and_jumping = 1.0  # The amount of time before the next jump in seconds
+        self.seconds_before_next_jump = self.duration_between_landing_and_jumping - (random.random() - 0.5)
+        self.change_x = -2.5
+        self.cat_has_not_jumped = True
+        self.soul_is_to_the_left_of_cat = True
 
     def update_animation(self, delta_time: float = settings.FRAMERATE):
         match self.state:
@@ -184,14 +190,40 @@ class CatBullet(Bullet):
                 # If the game catches that the cat has landed, return its state to walking
                 if self.bottom < self.minimum_height:
                     self.center_y = self.minimum_height + self.height / 2
-                    self.change_state("walking")
+                    self.change_state("idle")
                     self.seconds_before_next_jump = self.duration_between_landing_and_jumping
-                    self.change_x = 0
-                    self.change_y = 0
-            case CatState.WALKING:
-                self.seconds_before_next_jump -= delta_time
-                if self.seconds_before_next_jump <= 0:
-                    self.jump()
+                    self.change_x = -2.5
+                    self.normalized_center_x = self.center_x
+                    self.change_y = 0.0
+            case CatState.IDLE:
+                self.normalized_center_x -= 2.5
+                dx = self.soul.center_x - self.center_x
+                horizontal_distance = abs(dx)
+                if horizontal_distance <= 200:
+                    self.seconds_before_next_jump -= delta_time
+                    if self.seconds_before_next_jump <= 0:  # and self.cat_has_not_jumped:
+                        self.jump()
+                    else:
+                        if self.cat_has_not_jumped:
+                            # vibrate the cat
+                            self.center_x = self.normalized_center_x + (
+                                        random.random() - .5) * 5
+                            self.center_y = self.normalized_center_y + (
+                                        random.random() - .5) * 5
+                if dx < 0 and self.soul_is_to_the_left_of_cat:
+                    self.scale_x = -self.scale_x
+                    self.soul_is_to_the_left_of_cat = False
+                elif dx > 0 and not self.soul_is_to_the_left_of_cat:
+                    self.scale_x = -self.scale_x
+                    self.soul_is_to_the_left_of_cat = True
+                if self.center_x < 250 or self.center_x > settings.WINDOW_WIDTH - 250:
+                    self.change_state("dancing")
+            case CatState.DANCING:
+                self.normalized_center_x -= 2.5
+                horizontal_distance = abs(self.soul.center_x - self.center_x)
+                if horizontal_distance <= 250:
+                    self.change_state("idle")
+
 
         self.update(delta_time)
 
@@ -210,7 +242,7 @@ class CatBullet(Bullet):
         :param new_state:
         :return:
         """
-        print(new_state)
+        # print(new_state)
 
         for state in self.animation_states:
             if state.name == new_state:
@@ -225,11 +257,15 @@ class CatBullet(Bullet):
         if new_state in self.valid_states:
             self.state = self.valid_states[new_state]
 
+        self.texture_animation_clock = 0.0
+
     def jump(self):
         """
         Makes the cat jump.
         :return: None
         """
+
+        self.cat_has_not_jumped = False
 
         # Change the state of the cat to pouncing
         self.change_state("pouncing")
@@ -249,3 +285,5 @@ class CatBullet(Bullet):
 
         self.change_x = dvx
         self.change_y = dvy
+
+        self.cat_has_not_jumped = False

@@ -251,6 +251,7 @@ class GameView(arcade.View):
 
         # Start the background music.
         self.music_player = music_player.MusicPlayer()
+
         self.music_player.play_sound(
             sound_name="another_him",
             pitch=0.0,
@@ -258,6 +259,7 @@ class GameView(arcade.View):
         )
 
         sound_methods.gradually_update_pitch(self.music_player.currently_playing_song_player, 1.0, 0.02, 0.05)
+
 
         # Animate the background of the GONERMAKER.
         # graphics_methods.animate_depths(self.sprites_and_effects_collection.background_sprites)

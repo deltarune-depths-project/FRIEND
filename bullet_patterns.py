@@ -93,12 +93,15 @@ class CatPounceBulletPattern(BulletPattern):
 
         self.soul = soul
 
-        self.number_of_cats = 3
-        for i in range(self.number_of_cats):
+        self.number_of_cats = 9
+        self.distance_between_each_cat = settings.WINDOW_WIDTH / self.number_of_cats
+        self.number_of_frames_per_cat_spawn = self.distance_between_each_cat / 2.5
+        self.frames_elapsed_since_last_cat_spawn = 0
+        for i in range(self.number_of_cats + 2):
             cat_bullet = CatBullet(
                 sprites_and_effects_collection=sprites_and_effects_collection,
-                center_x=random.randint(settings.WINDOW_CENTER_X - 300, settings.WINDOW_CENTER_X + 300),
-                center_y=settings.WINDOW_HEIGHT / 3 + 50,
+                center_x=i*self.distance_between_each_cat,  # random.randint(settings.WINDOW_CENTER_X - 300, settings.WINDOW_CENTER_X + 300),
+                center_y=(settings.WINDOW_HEIGHT / 3) + 72,
                 attacker=self.attacker,
                 soul=self.soul
             )
@@ -107,3 +110,24 @@ class CatPounceBulletPattern(BulletPattern):
 
     def update_animation(self, delta_time: float):
         super().update_animation(delta_time)
+        self.frames_elapsed_since_last_cat_spawn += 1
+        # Spawn another cat if the last cat goes off the screen
+        if self.frames_elapsed_since_last_cat_spawn >= self.number_of_frames_per_cat_spawn:
+            self.frames_elapsed_since_last_cat_spawn = 0
+            self.bullets_sprite_list.pop(0)
+            cat_bullet = CatBullet(
+                sprites_and_effects_collection=self.sprites_and_effects_collection,
+                center_x=settings.WINDOW_WIDTH + self.distance_between_each_cat,
+                # random.randint(settings.WINDOW_CENTER_X - 300, settings.WINDOW_CENTER_X + 300),
+                center_y=(settings.WINDOW_HEIGHT / 3) + 72,
+                attacker=self.attacker,
+                soul=self.soul
+            )
+            self.spawn_bullet(cat_bullet)
+
+    def terminate_animation(self):
+        super().terminate_animation()
+        for bullet in self.sprites_and_effects_collection.bullet_sprites:
+            if bullet in self.sprites_and_effects_collection.effects:
+                self.sprites_and_effects_collection.effects.remove(bullet)
+            bullet.kill()
