@@ -3,7 +3,7 @@ import random
 import arcade
 
 from acts import RudinnRedBuster, RudinnDualHeal, RudinnConvince, RudinnLecture
-from enemy_attacks import RainingDiamondAttack
+from enemy_attacks import RainingDiamondAttack, CatPounceAttack
 from non_player_character import NonPlayerCharacter
 from speech_bubble import SpeechBubbleDialog
 from sprites_and_effects_collection import SpritesAndEffectsCollection
@@ -92,7 +92,8 @@ class Rudinn(NonPlayerCharacter):
 
 class FRIEND(NonPlayerCharacter):
     def __init__(self, sprites_and_effects_collection: SpritesAndEffectsCollection = None, enemies_list: list = [],
-                 center_x: float = 0.0, center_y: float = 0.0, bullet_board = None, scale: float = 3.0, angle: float = 0):
+                 center_x: float = 0.0, center_y: float = 0.0, bullet_board = None, scale: float = 3.0, angle: float = 0,
+                 soul = None):
         super().__init__(
             sprites_and_effects_collection=sprites_and_effects_collection,
             center_x=center_x,
@@ -108,11 +109,16 @@ class FRIEND(NonPlayerCharacter):
             dark_dollars_given_on_defeat=-666,
             element_id=6,
             attacks=[
-                RainingDiamondAttack(
+                #RainingDiamondAttack(
+                #    sprites_and_effects_collection=sprites_and_effects_collection,
+                #    bullet_board=bullet_board,
+                #    attacker=self,
+                #    enemies_list=enemies_list
+                #),
+                CatPounceAttack(
                     sprites_and_effects_collection=sprites_and_effects_collection,
-                    bullet_board=bullet_board,
                     attacker=self,
-                    enemies_list=enemies_list
+                    soul=soul
                 )
             ],
             acts=[

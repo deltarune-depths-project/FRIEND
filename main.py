@@ -19,6 +19,7 @@ from animations.background_animations import DepthsBackgroundAnimation
 from battle_state_machine import BattleController
 import items.armor_items
 from bullet_board import BulletBoard
+from bullets import CatBullet
 from items import armor_items
 from items.armor_items import PrincessRbn, TennaTie, ShadowMantle, Jevilstail, WhiteRibbon, WaferGuard, RoyalPin, \
     MysticBand, SolArmor, StarShield
@@ -234,15 +235,6 @@ class GameView(arcade.View):
         self.enemies.append(self.enemy_one)
         """
 
-        self.enemy_two = non_player_characters.FRIEND(
-            sprites_and_effects_collection=self.sprites_and_effects_collection,
-            center_x=self._unholy_arc[1][0] - 50,
-            center_y=self._unholy_arc[1][1],
-            enemies_list=self.enemies,
-            bullet_board=self.bullet_board
-        )
-        self.enemies.append(self.enemy_two)
-
         """
         self.enemy_three = non_player_character.Rudinn(
             sprites_and_effects_collection=self.sprites_and_effects_collection,
@@ -290,6 +282,16 @@ class GameView(arcade.View):
             music_player=self.music_player,
             game_view=self
         )
+
+        self.enemy_two = non_player_characters.FRIEND(
+            sprites_and_effects_collection=self.sprites_and_effects_collection,
+            center_x=self._unholy_arc[1][0] - 50,
+            center_y=self._unholy_arc[1][1],
+            enemies_list=self.enemies,
+            bullet_board=self.bullet_board,
+            soul=self.battle_controller.soul
+        )
+        self.enemies.append(self.enemy_two)
 
     def on_draw(self):
         # 3. Clear the screen

@@ -15,6 +15,7 @@ from actions import SpellAction, SpareAction, ActionsQueue, Action, DefendAction
 from animations.battle_animations import NumberBounceAnimation, HealAnimation, FightHitBar, CriticalHitSparkleAnimation
 from animations.common_animations import FadeInFadeOutColorAnimation, ShakeAnimation, GameOverAnimation
 from battle_widgets import SpellSelect, EnemySelect, TPMeter, PlayerSelect, ActSelect, ItemSelect
+from bullets import CatBullet
 from dialog_exchange import DialogExchange
 from dialogue_box import BattleTextBoxDialog
 from focus_stack import FocusStack

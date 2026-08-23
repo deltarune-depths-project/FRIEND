@@ -1,5 +1,7 @@
+from math import atan
+
 from bullet_board import BulletBoard
-from bullet_patterns import RainingDiamondBulletPattern
+from bullet_patterns import RainingDiamondBulletPattern, CatPounceBulletPattern
 from enemy_attack import EnemyAttack
 from sprites_and_effects_collection import SpritesAndEffectsCollection
 
@@ -38,6 +40,25 @@ class RainingDiamondAttack(EnemyAttack):
                     self.bullet_patterns.append(raining_diamond_bullet_pattern)
                 else:
                     break
+
+        return 10.0
+
+
+class CatPounceAttack(EnemyAttack):
+    def __init__(self, sprites_and_effects_collection: SpritesAndEffectsCollection, attacker = None, soul = None):
+        super().__init__(sprites_and_effects_collection, 10.0)
+        self.attacker = attacker
+        self.soul = soul
+
+    def execute_attack(self):
+        cats_bullet_pattern = CatPounceBulletPattern(
+            sprites_and_effects_collection=self.sprites_and_effects_collection,
+            soul=self.soul,
+            attacker=self.attacker
+        )
+
+        self.sprites_and_effects_collection.effects.append(cats_bullet_pattern)
+        self.bullet_patterns.append(cats_bullet_pattern)
 
         return 10.0
 

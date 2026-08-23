@@ -1,7 +1,9 @@
 import random
 
+import settings
 from bullet_board import BulletBoard
-from bullets import Bullet, BlackDiamondBullet
+from bullets import Bullet, BlackDiamondBullet, CatBullet
+from soul import Soul
 from sprites_and_effects_collection import SpritesAndEffectsCollection
 
 
@@ -27,6 +29,8 @@ class BulletPattern:
         self.is_terminated = True
         for sprite in self.bullets_sprite_list:
             sprite.kill()
+            if sprite in self.sprites_and_effects_collection.effects:
+                self.sprites_and_effects_collection.effects.remove(sprite)
 
     def spawn_bullet(self, bullet: Bullet):
         """
@@ -77,3 +81,29 @@ class RainingDiamondBulletPattern(BulletPattern):
             self.spawn_bullet(bullet)
 
             self.time_since_last_diamond_spawned = 0.0
+
+
+class CatPounceBulletPattern(BulletPattern):
+    def __init__(self, sprites_and_effects_collection, soul: Soul, total_duration: float = 10.0, attacker = None):
+        super().__init__(
+            sprites_and_effects_collection=sprites_and_effects_collection,
+            total_duration=total_duration,
+            attacker=attacker
+        )
+
+        self.soul = soul
+
+        self.number_of_cats = 3
+        for i in range(self.number_of_cats):
+            cat_bullet = CatBullet(
+                sprites_and_effects_collection=sprites_and_effects_collection,
+                center_x=random.randint(settings.WINDOW_CENTER_X - 300, settings.WINDOW_CENTER_X + 300),
+                center_y=settings.WINDOW_HEIGHT / 3 + 50,
+                attacker=self.attacker,
+                soul=self.soul
+            )
+
+            self.spawn_bullet(cat_bullet)
+
+    def update_animation(self, delta_time: float):
+        super().update_animation(delta_time)

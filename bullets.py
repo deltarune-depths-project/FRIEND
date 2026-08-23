@@ -1,3 +1,6 @@
+import math
+import random
+
 import arcade
 from arcade import Sprite, Texture
 from arcade.examples.sprite_health import sprite_off_screen
@@ -5,6 +8,7 @@ from arcade.hitbox import HitBox
 
 import settings
 from graphics_objects import AnimationState
+from enum import Enum, auto
 
 
 class Bullet(Sprite):
@@ -91,13 +95,19 @@ class BlackDiamondBullet(Bullet):
         self.center_y = self.center_y - (2 * (self.time ** 2) - 1)
 
 
+class CatState(Enum):
+    IDLE = auto()
+    WALKING = auto()
+    POUNCING = auto()
+    DANCING = auto()
+
 class CatBullet(Bullet):
     """
     Little cat bullets that interact with the player during the FRIEND fight.
     """
 
-    def __init__(self, center_x: float = 0.0, center_y: float = 0.0, angle: float = 0.0,
-                 sprites_and_effects_collection = None, scale: float = 1.0, attacker = None, soul = None):
+    def __init__(self, sprites_and_effects_collection, center_x: float = 0.0, center_y: float = 0.0, angle: float = 0.0,
+                scale: float = 3.0, attacker = None, soul = None):
         super().__init__(
             path_or_texture="assets/sprites/bullets/rudinn_diamond.png",
             center_x=center_x,
@@ -110,6 +120,9 @@ class CatBullet(Bullet):
 
         self.sprites_and_effects_collection = sprites_and_effects_collection
         self.soul = soul
+
+        self.jump_sound = arcade.load_sound("assets/audio/battle/snd_jump.wav")
+        self.meow_sound = arcade.load_sound("assets/audio/battle/non_player_character/FRIEND/snd_meow.wav")
 
         self.animation_states = [
             AnimationState(
@@ -134,25 +147,62 @@ class CatBullet(Bullet):
                 textures=sprites_and_effects_collection.cat_bullet_textures["pouncing"],
                 name="pouncing",
                 is_looping=True,
-                framerate=1.0
+                framerate=999.0
             )
         ]
 
+        self.current_animation_state = self.animation_states[0]
+
+        self.state = CatState.WALKING
+
+        self.valid_states = {
+            "idle": CatState.IDLE,
+            "walking": CatState.WALKING,
+            "dancing": CatState.DANCING,
+            "pouncing": CatState.POUNCING
+        }
+
         if sprites_and_effects_collection is not None:
-            self.textures = sprites_and_effects_collection.cat_bullet_textures["idle"]
+            self.textures = sprites_and_effects_collection.cat_bullet_textures["walking"]
             self.set_texture(0)
 
+        # Internal variables used to track the animation of the cat
+        self.texture_animation_clock = 0.0
+        self.current_texture_index = 0
+
         # Variables that control the movement of the cat
-        self.minimum_height = int(settings.WINDOW_HEIGHT * .25)
-        self.gravity = 1.0 # The acceleration per frame of the sprite
+        self.minimum_height = int(settings.WINDOW_HEIGHT / 3)  # The "floor" that the cat walks and lands on
+        self.gravity = 0.5 # The acceleration per frame of the sprite
+        self.jump_velocity = 20.0 # The velocity of the cat's jump
+        self.duration_between_landing_and_jumping = 2.0  # The amount of time before the next jump in seconds
+        self.seconds_before_next_jump = self.duration_between_landing_and_jumping - random.random()
 
     def update_animation(self, delta_time: float = settings.FRAMERATE):
-        return
+        match self.state:
+            case CatState.POUNCING:
+                self.change_y -= self.gravity
+                # If the game catches that the cat has landed, return its state to walking
+                if self.bottom < self.minimum_height:
+                    self.center_y = self.minimum_height + self.height / 2
+                    self.change_state("walking")
+                    self.seconds_before_next_jump = self.duration_between_landing_and_jumping
+                    self.change_x = 0
+                    self.change_y = 0
+            case CatState.WALKING:
+                self.seconds_before_next_jump -= delta_time
+                if self.seconds_before_next_jump <= 0:
+                    self.jump()
 
-        if self.is_jumping:
-            self.change_y -= self.gravity
-        else:
-            pass
+        self.update(delta_time)
+
+        self.texture_animation_clock += delta_time
+        if self.texture_animation_clock >= self.current_animation_state.get_framerate():
+            self.texture_animation_clock -= self.current_animation_state.get_framerate()
+            if self.current_texture_index < len(self.textures) - 1:
+                self.current_texture_index += 1
+            else:
+                self.current_texture_index = 0
+            self.set_texture(self.current_texture_index)
 
     def change_state(self, new_state: str = "idle"):
         """
@@ -160,8 +210,42 @@ class CatBullet(Bullet):
         :param new_state:
         :return:
         """
+        print(new_state)
+
         for state in self.animation_states:
             if state.name == new_state:
                 self.textures = state.textures
-                self.set_texture(0)
+                if new_state == "pouncing":
+                    self.set_texture(random.randint(0, len(self.textures) - 1))
+                else:
+                    self.set_texture(0)
+                self.current_animation_state = state
                 break
+
+        if new_state in self.valid_states:
+            self.state = self.valid_states[new_state]
+
+    def jump(self):
+        """
+        Makes the cat jump.
+        :return: None
+        """
+
+        # Change the state of the cat to pouncing
+        self.change_state("pouncing")
+
+        # Play the jump sounds.
+        self.jump_sound.play(speed=2.0, volume=0.5)
+        self.meow_sound.play(speed=1.0 + (random.random()), volume=0.75)
+
+        # Calculate the change in trajectory of the cat
+        dx = self.soul.center_x - self.center_x
+        dy = self.soul.center_y - self.center_y
+
+        angle = math.atan2(dy, dx)
+
+        dvx = self.jump_velocity * math.cos(angle)
+        dvy = self.jump_velocity * math.sin(angle)
+
+        self.change_x = dvx
+        self.change_y = dvy
