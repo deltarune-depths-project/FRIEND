@@ -92,7 +92,7 @@ class Rudinn(NonPlayerCharacter):
 
 class FRIEND(NonPlayerCharacter):
     def __init__(self, sprites_and_effects_collection: SpritesAndEffectsCollection = None, enemies_list: list = [],
-                 center_x: float = 0.0, center_y: float = 0.0, bullet_board = None, scale: float = 3.0, angle: float = 0,
+                 center_x: float = 0.0, center_y: float = 0.0, bullet_board = None, scale: float = 4.0, angle: float = 0,
                  soul = None):
         super().__init__(
             sprites_and_effects_collection=sprites_and_effects_collection,
@@ -186,7 +186,7 @@ class FRIEND(NonPlayerCharacter):
         self.battle_description = ("FRIEND - ATK: " + str(self.attack) + " DEF: " + str(self.defense) +
                                    "\nYou can't tell how many cats this  counts as.")
 
-        self.animations_by_state["battle_idle"].set_frame_duration(0.25)
+        self.animations_by_state["battle_idle"].set_frame_duration(0.3)
 
     def spawn_speech_bubble_this_turn(self):
         self.speech_bubble_sound.play()

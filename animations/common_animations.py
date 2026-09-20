@@ -20,6 +20,24 @@ from soul import Soul
 from text_box import SpriteTextBox, SpriteTextBoxDialog, HimTextBox
 
 
+class FadeInOrOutAnimation(SingleSpriteAnimation):
+    def __init__(self, sprite: Sprite, total_duration: float, target_alpha: int = 0):
+        super().__init__(
+            sprite=sprite,
+            total_duration=total_duration
+        )
+
+        self.starting_alpha = sprite.alpha
+        self.alpha_change = target_alpha - self.starting_alpha
+
+    def update_animation(self, delta_time):
+        if self.time < self.total_duration:
+            self.time += delta_time
+            self.sprite.alpha = self.starting_alpha + (self.alpha_change * (self.time / self.total_duration))
+        else:
+            self.terminate_animation()
+
+
 class ShakeAnimation(SingleSpriteAnimation):
     def __init__(self, sprite: Sprite, angle: float = 0, magnitude: float = 20.0, total_duration: float = 0.4,
                  frequency: float = 0.05):

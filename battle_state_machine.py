@@ -1237,6 +1237,9 @@ class BattleController:
 
         self.load_bullet_board_called_for_this_turn = True
 
+        # FRIEND stuff
+        self.sprites_and_effects_collection.effects.append()
+
     def end_enemy_attack(self):
         """
         Ends the enemy attack.

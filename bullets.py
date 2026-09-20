@@ -206,10 +206,8 @@ class CatBullet(Bullet):
                     else:
                         if self.cat_has_not_jumped:
                             # vibrate the cat
-                            self.center_x = self.normalized_center_x + (
-                                        random.random() - .5) * 5
-                            self.center_y = self.normalized_center_y + (
-                                        random.random() - .5) * 5
+                            self.center_x = self.normalized_center_x + ((random.random() - .5) * ((2.0 - self.seconds_before_next_jump) * 5))
+                            self.center_y = self.normalized_center_y + ((random.random() - .5) * ((2.0 - self.seconds_before_next_jump) * 5))
                 if dx < 0 and self.soul_is_to_the_left_of_cat:
                     self.scale_x = -self.scale_x
                     self.soul_is_to_the_left_of_cat = False
