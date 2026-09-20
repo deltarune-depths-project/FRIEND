@@ -27,13 +27,25 @@ class FadeInOrOutAnimation(SingleSpriteAnimation):
             total_duration=total_duration
         )
 
+        # Prevents invalid values for alpha
+        if target_alpha < 0:
+            target_alpha = 0
+        if target_alpha > 255:
+            target_alpha = 255
+
+        # Prevents divide by 0 error
+        if total_duration < 0:
+            self.total_duration = 1.0
+
+        target_alpha = int(target_alpha)
+
         self.starting_alpha = sprite.alpha
         self.alpha_change = target_alpha - self.starting_alpha
 
     def update_animation(self, delta_time):
         if self.time < self.total_duration:
             self.time += delta_time
-            self.sprite.alpha = self.starting_alpha + (self.alpha_change * (self.time / self.total_duration))
+            self.sprite.alpha = int(self.starting_alpha + (self.alpha_change * (self.time / self.total_duration)))
         else:
             self.terminate_animation()
 

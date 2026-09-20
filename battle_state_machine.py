@@ -13,7 +13,8 @@ import player_character
 import settings
 from actions import SpellAction, SpareAction, ActionsQueue, Action, DefendAction, ItemAction, FightAction, ActAction
 from animations.battle_animations import NumberBounceAnimation, HealAnimation, FightHitBar, CriticalHitSparkleAnimation
-from animations.common_animations import FadeInFadeOutColorAnimation, ShakeAnimation, GameOverAnimation
+from animations.common_animations import FadeInFadeOutColorAnimation, ShakeAnimation, GameOverAnimation, \
+    FadeInOrOutAnimation
 from battle_widgets import SpellSelect, EnemySelect, TPMeter, PlayerSelect, ActSelect, ItemSelect
 from bullets import CatBullet
 from dialog_exchange import DialogExchange
@@ -1238,7 +1239,15 @@ class BattleController:
         self.load_bullet_board_called_for_this_turn = True
 
         # FRIEND stuff
-        self.sprites_and_effects_collection.effects.append()
+
+        # Fade out FRIEND sprite
+        self.sprites_and_effects_collection.effects.append(
+            FadeInOrOutAnimation(
+                sprite=self.enemies[0],
+                total_duration=0.5,
+                target_alpha=0
+            )
+        )
 
     def end_enemy_attack(self):
         """
@@ -1269,6 +1278,17 @@ class BattleController:
         self.load_bullet_board_called_for_this_turn = False
         for card in self.battle_player_character_cards.children:
             card.is_focusable = True
+
+        # FRIEND stuff
+
+        # Fade in FRIEND sprite
+        self.sprites_and_effects_collection.effects.append(
+            FadeInOrOutAnimation(
+                sprite=self.enemies[0],
+                total_duration=0.5,
+                target_alpha=255
+            )
+        )
 
     def change_player_icon(self, icon_path: str = ""):
         """ Changes the icon of the current player to the icon at the given path. """
