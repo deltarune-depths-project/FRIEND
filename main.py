@@ -29,6 +29,18 @@ from spells import Spell, IceShock
 from sprites_and_effects_collection import SpritesAndEffectsCollection
 
 
+# Initialize the UIManager.
+#manager = UIManager()
+#manager._pixelated = True
+#manager.enable()
+
+# Setup camera stuff
+#camera = arcade.Camera2D()
+
+# Initialize sprites and effects collection
+#sprites_and_effects_collection = SpritesAndEffectsCollection(camera, manager)
+
+
 class GameView(arcade.View):
     def __init__(self):
         # Call the parent class initializer

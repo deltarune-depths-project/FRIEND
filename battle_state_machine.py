@@ -16,7 +16,7 @@ from animations.battle_animations import NumberBounceAnimation, HealAnimation, F
 from animations.common_animations import FadeInFadeOutColorAnimation, ShakeAnimation, GameOverAnimation, \
     FadeInOrOutAnimation
 from battle_widgets import SpellSelect, EnemySelect, TPMeter, PlayerSelect, ActSelect, ItemSelect
-from bullets import CatBullet
+from bullets import CatBullet, TailCircleBullet
 from dialog_exchange import DialogExchange
 from dialogue_box import BattleTextBoxDialog
 from focus_stack import FocusStack
@@ -1248,6 +1248,13 @@ class BattleController:
                 target_alpha=0
             )
         )
+
+        # Testing
+        circle_bullet = TailCircleBullet(10, self.players[0].center_x, self.players[0].center_y, self.sprites_and_effects_collection)
+        self.sprites_and_effects_collection.effects.append(circle_bullet)
+        for sprite in circle_bullet.get_sprites():
+            self.sprites_and_effects_collection.bullet_sprites.append(sprite)
+
 
     def end_enemy_attack(self):
         """

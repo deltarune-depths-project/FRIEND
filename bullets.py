@@ -2,7 +2,7 @@ import math
 import random
 
 import arcade
-from arcade import Sprite, Texture
+from arcade import Sprite, Texture, SpriteCircle
 from arcade.examples.sprite_health import sprite_off_screen
 from arcade.hitbox import HitBox
 
@@ -10,12 +10,14 @@ import settings
 from graphics_objects import AnimationState
 from enum import Enum, auto
 
+from sprites_and_effects_collection import SpritesAndEffectsCollection
+
 
 class Bullet(Sprite):
     def __init__(self, path_or_texture: Texture | str, center_x: float = 0.0, center_y: float = 0.0, angle: float = 0.0,
                  scale: float = 1.0, lifetime: float = 10.0, kill_bullet_when_offscreen: bool = True,
                  base_damage: float = 50.0 ,tp_gain = 0.5, element_id: int = 0, targets_multiple_players: bool = False,
-                 attacker = None):
+                 attacker = None, sprites_and_effects_collection: SpritesAndEffectsCollection = None):
         super().__init__(
             path_or_texture=path_or_texture,
             center_x=center_x,
@@ -23,6 +25,8 @@ class Bullet(Sprite):
             angle=angle,
             scale=scale
         )
+
+        self.sprites_and_effects_collection = sprites_and_effects_collection
 
         self.time = 0.0
         self.lifetime = lifetime
@@ -41,6 +45,52 @@ class Bullet(Sprite):
         self.upper_limit = settings.WINDOW_HEIGHT + self.height
         self.left_limit = -self.width
         self.right_limit = settings.WINDOW_WIDTH + self.width
+
+class CircleBullet(SpriteCircle):
+    def __init__(self, radius: int = 10, color: tuple[int, int, int, int] = (0, 0, 0, 255), soft: bool = False,
+                 center_x: float = 0.0, center_y: float = 0.0, lifetime: float = 10.0,
+                 kill_bullet_when_offscreen: bool = True, base_damage: float = 50.0, tp_gain=0.5, element_id: int = 0,
+                 targets_multiple_players: bool = False, attacker = None,
+                 sprites_and_effects_collection: SpritesAndEffectsCollection = None):
+        super().__init__(
+            radius=radius,
+            color=color,
+            soft=soft,
+            center_x=center_x,
+            center_y=center_y
+        )
+
+        self.sprites_and_effects_collection = sprites_and_effects_collection
+
+        self.time = 0.0
+        self.lifetime = lifetime
+        self.kill_bullet_when_offscreen = kill_bullet_when_offscreen
+        self.base_damage = base_damage  # The base damage that the bullet should deal to its target.
+        if attacker is not None:
+            self.damage = self.base_damage + (attacker.attack * 3)
+        else:
+            self.damage = self.base_damage
+        self.tp_gain_when_grazed = tp_gain  # The amount of TP gained when the soul grazes the bullet
+        self.has_been_grazed = False  # Whether the bullet has been grazed yet
+        self.element_id = element_id  # The element ID of the bullet. Defaults to 0
+        self.targets_multiple_players = targets_multiple_players  # Determines if the bullet should damage multiple players
+
+        self.lower_limit = -self.height
+        self.upper_limit = settings.WINDOW_HEIGHT + self.height
+        self.left_limit = -self.width
+        self.right_limit = settings.WINDOW_WIDTH + self.width
+
+    def update_animation(self, delta_time: float = 1 / 60):
+        self.time += delta_time
+
+        # Kills the bullet if it goes offscreen if the bullet is configured to be killed offscreen.
+        if self.kill_bullet_when_offscreen:
+            if self.top < self.lower_limit or self.bottom > self.upper_limit or self.right < self.left_limit or self.left > self.right_limit:
+                self.kill()
+
+        # Kills the bullet if it is on screen for longer than the bullets designated lifetime.
+        if self.time > self.lifetime:
+            self.kill()
 
     def update_animation(self, delta_time: float = 1 / 60):
         self.time += delta_time
@@ -285,3 +335,75 @@ class CatBullet(Bullet):
         self.change_y = dvy
 
         self.cat_has_not_jumped = False
+
+
+class TailCircleBullet(CircleBullet):
+    def __init__(self, radius: int = 10, center_x: int = 0, center_y: int = 0,
+                 sprites_and_effects_collection: SpritesAndEffectsCollection = None):
+        super().__init__(
+            radius=radius,
+            color=(0, 0, 0, 0),
+            center_x=center_x,
+            center_y=center_y,
+            element_id=6,
+            tp_gain=2.0
+        )
+
+        self.sprites_and_effects_collection = sprites_and_effects_collection
+
+        self.scale = 4.0
+
+        self.black_circle = SpriteCircle(
+            radius=radius,
+            color=arcade.color.BLACK,
+            center_x=center_x,
+            center_y=center_y
+        )
+
+        self.black_circle.scale = 4.0
+
+        self.background_circle = SpriteCircle(
+            radius=radius + 2,
+            color=arcade.color.WHITE,
+            center_x=center_x,
+            center_y=center_y
+        )
+
+        self.background_circle.scale = 4.0
+
+        self.starting_radius = radius
+
+    def update_animation(self, delta_time: float):
+        self.time += delta_time
+
+        new_radius = int(self.starting_radius + (math.sin(self.time) * 5))
+
+        new_black_circle = SpriteCircle(
+            radius=new_radius,
+            color=arcade.color.BLACK,
+            center_x=self.center_x,
+            center_y=self.center_y
+        )
+
+        new_black_circle.scale = 4
+
+        new_background_circle = SpriteCircle(
+            radius=new_radius + 2,
+            color=arcade.color.WHITE,
+            center_x=self.center_x,
+            center_y=self.center_y
+        )
+
+        new_background_circle.scale = 4
+
+        for i in range(len(self.sprites_and_effects_collection.bullet_sprites)):
+            if self.sprites_and_effects_collection.bullet_sprites[i] is self.background_circle:
+                self.background_circle = new_background_circle
+                self.sprites_and_effects_collection.bullet_sprites[i] = self.background_circle
+            if self.sprites_and_effects_collection.bullet_sprites[i] is self.black_circle:
+                self.black_circle = new_black_circle
+                self.sprites_and_effects_collection.bullet_sprites[i] = self.black_circle
+                break
+
+    def get_sprites(self):
+        return [self.background_circle, self.black_circle, self]

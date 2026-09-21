@@ -1,4 +1,3 @@
-import arcade
 from arcade import Camera2D, SpriteList
 from arcade.gui import UIManager
 
