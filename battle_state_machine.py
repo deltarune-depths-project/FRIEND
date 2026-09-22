@@ -16,6 +16,7 @@ from animations.battle_animations import NumberBounceAnimation, HealAnimation, F
 from animations.common_animations import FadeInFadeOutColorAnimation, ShakeAnimation, GameOverAnimation, \
     FadeInOrOutAnimation
 from battle_widgets import SpellSelect, EnemySelect, TPMeter, PlayerSelect, ActSelect, ItemSelect
+from bullet_patterns import PointedTailStabBulletPattern
 from bullets import CatBullet, TailCircleBullet, TailPointBullet
 from dialog_exchange import DialogExchange
 from dialogue_box import BattleTextBoxDialog
@@ -1250,14 +1251,9 @@ class BattleController:
         )
 
         # Testing
-        circle_bullet = TailCircleBullet(7, self.players[0].center_x, self.players[0].center_y, self.sprites_and_effects_collection)
-        self.sprites_and_effects_collection.effects.append(circle_bullet)
-        for sprite in circle_bullet.get_sprites():
-            self.sprites_and_effects_collection.bullet_sprites.append(sprite)
-
-        tail_point_bullet = TailPointBullet(self.players[1].center_x, self.players[1].center_y, 0,
-                                         self.sprites_and_effects_collection)
-        self.sprites_and_effects_collection.bullet_sprites.append(tail_point_bullet)
+        tail_of_hell = PointedTailStabBulletPattern(
+            sprites_and_effects_collection=self.sprites_and_effects_collection
+        )
 
 
     def end_enemy_attack(self):

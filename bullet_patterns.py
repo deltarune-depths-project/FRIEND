@@ -2,7 +2,7 @@ import random
 
 import settings
 from bullet_board import BulletBoard
-from bullets import Bullet, BlackDiamondBullet, CatBullet
+from bullets import Bullet, BlackDiamondBullet, CatBullet, TailCircleBullet, TailPointBullet
 from soul import Soul
 from sprites_and_effects_collection import SpritesAndEffectsCollection
 
@@ -27,6 +27,7 @@ class BulletPattern:
 
     def terminate_animation(self):
         self.is_terminated = True
+
         for sprite in self.bullets_sprite_list:
             sprite.kill()
             if sprite in self.sprites_and_effects_collection.effects:
@@ -131,3 +132,38 @@ class CatPounceBulletPattern(BulletPattern):
             if bullet in self.sprites_and_effects_collection.effects:
                 self.sprites_and_effects_collection.effects.remove(bullet)
             bullet.kill()
+
+
+class PointedTailStabBulletPattern(BulletPattern):
+    def __init__(self, sprites_and_effects_collection, total_duration: float = 10.0, attacker = None):
+        super().__init__(
+            sprites_and_effects_collection=sprites_and_effects_collection,
+            total_duration=total_duration,
+            attacker=attacker
+        )
+
+        self.tail_point = TailPointBullet(
+            center_x=int((settings.WINDOW_WIDTH / 3) - 72),
+            center_y=int(settings.WINDOW_HEIGHT / 3),
+            angle=90,
+            sprites_and_effects_collection=sprites_and_effects_collection
+        )
+
+        self.bullets_sprite_list.append(self.tail_point)
+        self.sprites_and_effects_collection.bullet_sprites.append(self.tail_point)
+
+        self.tail_segments = []
+
+        number_of_tail_segments = 10
+        for i in range(number_of_tail_segments):
+            tail_circle = TailCircleBullet(
+                radius=5,
+                center_x=int((settings.WINDOW_WIDTH / 3) + (72 * i)),
+                center_y=int(settings.WINDOW_HEIGHT / 3),
+                sprites_and_effects_collection=sprites_and_effects_collection
+            )
+
+            self.tail_segments.append(tail_circle)
+            for sprite in tail_circle.get_sprites():
+                self.bullets_sprite_list.append(sprite)
+                self.sprites_and_effects_collection.bullet_sprites.append(sprite)
