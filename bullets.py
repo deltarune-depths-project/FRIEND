@@ -1,7 +1,10 @@
 import math
 import random
 
+import PIL
 import arcade
+from PIL import ImageDraw
+from PIL.Image import Image
 from arcade import Sprite, Texture, SpriteCircle
 from arcade.examples.sprite_health import sprite_off_screen
 from arcade.hitbox import HitBox
@@ -14,10 +17,13 @@ from sprites_and_effects_collection import SpritesAndEffectsCollection
 
 
 class Bullet(Sprite):
-    def __init__(self, path_or_texture: Texture | str, center_x: float = 0.0, center_y: float = 0.0, angle: float = 0.0,
+    def __init__(self, path_or_texture: Texture | str = None, center_x: float = 0.0, center_y: float = 0.0, angle: float = 0.0,
                  scale: float = 1.0, lifetime: float = 10.0, kill_bullet_when_offscreen: bool = True,
                  base_damage: float = 50.0 ,tp_gain = 0.5, element_id: int = 0, targets_multiple_players: bool = False,
                  attacker = None, sprites_and_effects_collection: SpritesAndEffectsCollection = None):
+        if not path_or_texture:
+            path_or_texture = Texture(Image())
+
         super().__init__(
             path_or_texture=path_or_texture,
             center_x=center_x,
@@ -338,7 +344,7 @@ class CatBullet(Bullet):
 
 
 class TailCircleBullet(CircleBullet):
-    def __init__(self, radius: int = 10, center_x: int = 0, center_y: int = 0,
+    def __init__(self, radius: int = 5, center_x: int = 0, center_y: int = 0,
                  sprites_and_effects_collection: SpritesAndEffectsCollection = None):
         super().__init__(
             radius=radius,
@@ -376,7 +382,7 @@ class TailCircleBullet(CircleBullet):
     def update_animation(self, delta_time: float):
         self.time += delta_time
 
-        new_radius = int(self.starting_radius + (math.sin(self.time) * 5))
+        new_radius = int(self.starting_radius + (math.sin(self.time) * 2))
 
         new_black_circle = SpriteCircle(
             radius=new_radius,
@@ -407,3 +413,37 @@ class TailCircleBullet(CircleBullet):
 
     def get_sprites(self):
         return [self.background_circle, self.black_circle, self]
+
+
+class TailPointBullet(Bullet):
+    def __init__(self, center_x: int = 0, center_y: int = 0, angle: float = 0.0,
+                 sprites_and_effects_collection: SpritesAndEffectsCollection = None):
+
+        # The image generated of the point on FRIENDs tail.
+        self.tail_point_image = PIL.Image.new("RGBA", (48, 48), (0, 0, 0, 0))
+        self.tail_point_image_draw = ImageDraw.Draw(self.tail_point_image)
+
+        self.tail_default_polygon = [
+            (24, 40), (36, 9), (24, 16), (12, 9)
+        ]
+
+        self.tail_point_image_draw.polygon(
+            xy=self.tail_default_polygon,
+            fill=(0, 0, 0),
+            outline=(255, 255, 255),
+            width=2
+        )
+
+        self.tail_point_texture = arcade.Texture(image=self.tail_point_image)
+
+        super().__init__(
+            path_or_texture=self.tail_point_texture,
+            center_x=center_x,
+            center_y=center_y,
+            angle=angle,
+            scale=4.0,
+            base_damage=20.0,
+            element_id=6,
+            lifetime=20.0,
+            sprites_and_effects_collection=sprites_and_effects_collection
+        )
