@@ -3,7 +3,7 @@ import random
 
 import settings
 from bullet_board import BulletBoard
-from bullets import Bullet, BlackDiamondBullet, CatBullet, TailCircleBullet, TailPointBullet, NewTailCircleBullet
+from bullets import Bullet, BlackDiamondBullet, CatBullet, TailCircleBullet, TailPointBullet
 from soul import Soul
 from sprites_and_effects_collection import SpritesAndEffectsCollection
 
