@@ -3,7 +3,7 @@ import random
 import arcade
 
 from acts import RudinnRedBuster, RudinnDualHeal, RudinnConvince, RudinnLecture
-from enemy_attacks import RainingDiamondAttack, CatPounceAttack
+from enemy_attacks import RainingDiamondAttack, CatPounceAttack, TailJabAttack
 from non_player_character import NonPlayerCharacter
 from speech_bubble import SpeechBubbleDialog
 from sprites_and_effects_collection import SpritesAndEffectsCollection
@@ -115,7 +115,12 @@ class FRIEND(NonPlayerCharacter):
                 #    attacker=self,
                 #    enemies_list=enemies_list
                 #),
-                CatPounceAttack(
+                #CatPounceAttack(
+                #    sprites_and_effects_collection=sprites_and_effects_collection,
+                #    attacker=self,
+                #    soul=soul
+                #),
+                TailJabAttack(
                     sprites_and_effects_collection=sprites_and_effects_collection,
                     attacker=self,
                     soul=soul

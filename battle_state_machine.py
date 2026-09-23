@@ -1251,9 +1251,14 @@ class BattleController:
         )
 
         # Testing
+        """
         tail_of_hell = PointedTailStabBulletPattern(
             sprites_and_effects_collection=self.sprites_and_effects_collection
         )
+
+        self.sprites_and_effects_collection.effects.append(tail_of_hell)
+        self.sprites_and_effects_collection.bullet_sprites.append(tail_of_hell)
+        """
 
 
     def end_enemy_attack(self):

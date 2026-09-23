@@ -379,6 +379,9 @@ class TailCircleBullet(CircleBullet):
 
         self.starting_radius = radius
 
+        self.initial_center_x = center_x
+        self.initial_center_y = center_y
+
     def update_animation(self, delta_time: float):
         self.time += delta_time
 
@@ -410,6 +413,12 @@ class TailCircleBullet(CircleBullet):
                 self.black_circle = new_black_circle
                 self.sprites_and_effects_collection.bullet_sprites[i] = self.black_circle
                 break
+
+        self.background_circle.center_x = self.center_x
+        self.black_circle.center_x = self.center_x
+
+        self.background_circle.center_y = self.center_y
+        self.black_circle.center_y = self.center_y
 
     def get_sprites(self):
         return [self.background_circle, self.black_circle, self]
@@ -447,3 +456,6 @@ class TailPointBullet(Bullet):
             lifetime=20.0,
             sprites_and_effects_collection=sprites_and_effects_collection
         )
+
+        self.initial_center_x = center_x
+        self.initial_center_y = center_y

@@ -1,3 +1,4 @@
+import math
 import random
 
 import settings
@@ -38,10 +39,15 @@ class BulletPattern:
         Add bullets to the bullets sprite list. Also adds the new sprites to the effects sprite list.
         :return: None
         """
-        self.bullets_sprite_list.append(bullet)
+        if hasattr(bullet, "get_sprites"):
+            for sprite in bullet.get_sprites():
+                self.bullets_sprite_list.append(sprite)
+                self.sprites_and_effects_collection.bullet_sprites.append(sprite)
+        else:
+            self.bullets_sprite_list.append(bullet)
+            self.sprites_and_effects_collection.bullet_sprites.append(bullet)
 
         self.sprites_and_effects_collection.effects.append(bullet)
-        self.sprites_and_effects_collection.bullet_sprites.append(bullet)
 
     def spawn_bullets(self, bullets: list[Bullet]):
         """
@@ -50,10 +56,14 @@ class BulletPattern:
         """
 
         for bullet in bullets:
-            self.bullets_sprite_list.append(bullet)
-
+            if hasattr(bullet, "get_sprites"):
+                for sprite in bullet.get_sprites():
+                    self.bullets_sprite_list.append(sprite)
+                    self.sprites_and_effects_collection.bullet_sprites.append(sprite)
+            else:
+                self.bullets_sprite_list.append(bullet)
+                self.sprites_and_effects_collection.bullet_sprites.append(bullet)
             self.sprites_and_effects_collection.effects.append(bullet)
-            self.sprites_and_effects_collection.bullet_sprites.append(bullet)
 
 
 class RainingDiamondBulletPattern(BulletPattern):
@@ -135,12 +145,14 @@ class CatPounceBulletPattern(BulletPattern):
 
 
 class PointedTailStabBulletPattern(BulletPattern):
-    def __init__(self, sprites_and_effects_collection, total_duration: float = 10.0, attacker = None):
+    def __init__(self, sprites_and_effects_collection, soul: Soul = None, total_duration: float = 10.0, attacker = None):
         super().__init__(
             sprites_and_effects_collection=sprites_and_effects_collection,
             total_duration=total_duration,
             attacker=attacker
         )
+
+        self.soul = soul
 
         self.tail_point = TailPointBullet(
             center_x=int((settings.WINDOW_WIDTH / 3) - 72),
@@ -149,8 +161,7 @@ class PointedTailStabBulletPattern(BulletPattern):
             sprites_and_effects_collection=sprites_and_effects_collection
         )
 
-        self.bullets_sprite_list.append(self.tail_point)
-        self.sprites_and_effects_collection.bullet_sprites.append(self.tail_point)
+        self.spawn_bullet(self.tail_point)
 
         self.tail_segments = []
 
@@ -164,6 +175,18 @@ class PointedTailStabBulletPattern(BulletPattern):
             )
 
             self.tail_segments.append(tail_circle)
-            for sprite in tail_circle.get_sprites():
-                self.bullets_sprite_list.append(sprite)
-                self.sprites_and_effects_collection.bullet_sprites.append(sprite)
+
+        self.spawn_bullets(self.tail_segments)
+
+        # Animation variables
+        self.rotation_duration = 2.0
+        self.rotation_radius = 20
+
+    def update_animation(self, delta_time: float):
+        super().update_animation(delta_time)
+
+        radians = (self.time * math.pi) / 2
+
+        for segment in self.tail_segments:
+            segment.center_x = segment.initial_center_x + (self.rotation_radius * math.cos(radians))
+            segment.center_y = segment.initial_center_y + (self.rotation_radius * math.sin(radians))

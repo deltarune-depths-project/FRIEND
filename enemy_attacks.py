@@ -1,7 +1,7 @@
 from math import atan
 
 from bullet_board import BulletBoard
-from bullet_patterns import RainingDiamondBulletPattern, CatPounceBulletPattern
+from bullet_patterns import RainingDiamondBulletPattern, CatPounceBulletPattern, PointedTailStabBulletPattern
 from enemy_attack import EnemyAttack
 from sprites_and_effects_collection import SpritesAndEffectsCollection
 
@@ -62,6 +62,23 @@ class CatPounceAttack(EnemyAttack):
 
         return 10.0
 
+
+class TailJabAttack(EnemyAttack):
+    def __init__(self, sprites_and_effects_collection: SpritesAndEffectsCollection, attacker=None, soul=None):
+        super().__init__(sprites_and_effects_collection, 10.0)
+        self.attacker = attacker
+        self.soul = soul
+
+    def execute_attack(self):
+        tail_stab_bullet_pattern = PointedTailStabBulletPattern(
+            sprites_and_effects_collection=self.sprites_and_effects_collection,
+            attacker=self.attacker
+        )
+
+        self.sprites_and_effects_collection.effects.append(tail_stab_bullet_pattern)
+        self.bullet_patterns.append(tail_stab_bullet_pattern)
+
+        return 10.0
 
 def get_number_of_unique_enemies_from_enemies_list(enemies_list: list):
     """
