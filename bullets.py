@@ -342,7 +342,7 @@ class CatBullet(Bullet):
 
         self.cat_has_not_jumped = False
 
-
+"""
 class TailCircleBullet(CircleBullet):
     def __init__(self, radius: int = 5, center_x: int = 0, center_y: int = 0,
                  sprites_and_effects_collection: SpritesAndEffectsCollection = None):
@@ -382,37 +382,45 @@ class TailCircleBullet(CircleBullet):
         self.initial_center_x = center_x
         self.initial_center_y = center_y
 
+        self.old_radius = self.width / 2
+
     def update_animation(self, delta_time: float):
         self.time += delta_time
+        self.old_radius = int(self.width * 2)
 
-        new_radius = int(self.starting_radius + (math.sin(self.time) * 2))
+        new_radius = int(self.starting_radius + (math.sin(self.time) * 1))
 
-        new_black_circle = SpriteCircle(
-            radius=new_radius,
-            color=arcade.color.BLACK,
-            center_x=self.center_x,
-            center_y=self.center_y
-        )
+        if self.old_radius != new_radius:
 
-        new_black_circle.scale = 4
+            self.width = new_radius * 2
+            self.height = new_radius * 2
 
-        new_background_circle = SpriteCircle(
-            radius=new_radius + 2,
-            color=arcade.color.WHITE,
-            center_x=self.center_x,
-            center_y=self.center_y
-        )
+            new_black_circle = SpriteCircle(
+                radius=new_radius,
+                color=arcade.color.BLACK,
+                center_x=self.center_x,
+                center_y=self.center_y
+            )
 
-        new_background_circle.scale = 4
+            new_black_circle.scale = 4
 
-        for i in range(len(self.sprites_and_effects_collection.bullet_sprites)):
-            if self.sprites_and_effects_collection.bullet_sprites[i] is self.background_circle:
-                self.background_circle = new_background_circle
-                self.sprites_and_effects_collection.bullet_sprites[i] = self.background_circle
-            if self.sprites_and_effects_collection.bullet_sprites[i] is self.black_circle:
-                self.black_circle = new_black_circle
-                self.sprites_and_effects_collection.bullet_sprites[i] = self.black_circle
-                break
+            new_background_circle = SpriteCircle(
+                radius=new_radius + 2,
+                color=arcade.color.WHITE,
+                center_x=self.center_x,
+                center_y=self.center_y
+            )
+
+            new_background_circle.scale = 4
+
+            for i in range(len(self.sprites_and_effects_collection.bullet_sprites)):
+                if self.sprites_and_effects_collection.bullet_sprites[i] is self.background_circle:
+                    self.background_circle = new_background_circle
+                    self.sprites_and_effects_collection.bullet_sprites[i] = self.background_circle
+                if self.sprites_and_effects_collection.bullet_sprites[i] is self.black_circle:
+                    self.black_circle = new_black_circle
+                    self.sprites_and_effects_collection.bullet_sprites[i] = self.black_circle
+                    break
 
         self.background_circle.center_x = self.center_x
         self.black_circle.center_x = self.center_x
@@ -422,7 +430,81 @@ class TailCircleBullet(CircleBullet):
 
     def get_sprites(self):
         return [self.background_circle, self.black_circle, self]
+"""
 
+
+class TailCircleBullet(Bullet):
+    def __init__(self, radius: int = 6, center_x: int = 0, center_y: int = 0,
+                 sprites_and_effects_collection: SpritesAndEffectsCollection = None):
+        self.line_width = 2
+        self.pulsation_width = 1
+        self.starting_radius = radius
+        self.image_width = (self.starting_radius * 2) + self.line_width
+
+        self.image_dimensions = (self.image_width, self.image_width)
+
+        # The image generated of the point on FRIENDs tail.
+        self.circle_image = PIL.Image.new("RGBA", self.image_dimensions, (0, 0, 0, 0))
+        self.circle_image_draw = ImageDraw.Draw(self.circle_image)
+
+        self.circle_image_draw.circle(
+            xy=(self.image_width / 2, self.image_width / 2),
+            radius=self.starting_radius,
+            outline=(255, 255, 255),
+            fill=(0, 0, 0),
+            width=self.line_width
+        )
+
+        self.circle_texture = arcade.Texture(image=self.circle_image)
+
+        super().__init__(
+            path_or_texture=self.circle_texture,
+            center_x=center_x,
+            center_y=center_y,
+            scale=4.0,
+            element_id=6,
+            lifetime=10.0,
+            sprites_and_effects_collection=sprites_and_effects_collection
+        )
+
+        self.initial_center_x = center_x
+        self.initial_center_y = center_y
+
+        self.old_radius = self.starting_radius
+
+    def update_animation(self, delta_time: float):
+        self.time += delta_time
+
+        new_radius = int(self.starting_radius + (math.sin(self.time) * self.pulsation_width))
+
+        if self.old_radius != new_radius:
+
+            self.width = new_radius * 2
+            self.height = new_radius * 2
+
+            self.image_width = (new_radius * 2) + self.line_width
+
+            self.image_dimensions = (self.image_width, self.image_width)
+
+            # The image generated of the point on FRIENDs tail.
+            self.circle_image = PIL.Image.new("RGBA", self.image_dimensions, (0, 0, 0, 0))
+            self.circle_image_draw = ImageDraw.Draw(self.circle_image)
+
+            self.circle_image_draw.circle(
+                xy=(self.image_width / 2, self.image_width / 2),
+                radius=new_radius,
+                outline=(255, 255, 255),
+                fill=(0, 0, 0),
+                width=self.line_width
+            )
+
+            self.circle_texture = arcade.Texture(image=self.circle_image)
+
+            self.texture = self.circle_texture
+
+            self.old_radius = new_radius
+
+            self.scale = 4
 
 class TailPointBullet(Bullet):
     def __init__(self, center_x: int = 0, center_y: int = 0, angle: float = 0.0,
@@ -453,9 +535,12 @@ class TailPointBullet(Bullet):
             scale=4.0,
             base_damage=20.0,
             element_id=6,
-            lifetime=20.0,
+            lifetime=10.0,
             sprites_and_effects_collection=sprites_and_effects_collection
         )
 
         self.initial_center_x = center_x
         self.initial_center_y = center_y
+
+    def update_animation(self, delta_time: float):
+        self.time += delta_time

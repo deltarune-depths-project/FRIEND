@@ -44,7 +44,11 @@ class EnemyAttack:
         :return: None
         """
         for bullet in self.bullets:
-            bullet.kill()
+            if hasattr(bullet, "get_sprites"):
+                for sprite in bullet.get_sprites():
+                    sprite.kill()
+            else:
+                bullet.kill()
 
         for bullet_pattern in self.bullet_patterns:
             bullet_pattern.terminate_animation()

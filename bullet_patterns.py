@@ -3,7 +3,7 @@ import random
 
 import settings
 from bullet_board import BulletBoard
-from bullets import Bullet, BlackDiamondBullet, CatBullet, TailCircleBullet, TailPointBullet
+from bullets import Bullet, BlackDiamondBullet, CatBullet, TailCircleBullet, TailPointBullet, NewTailCircleBullet
 from soul import Soul
 from sprites_and_effects_collection import SpritesAndEffectsCollection
 
@@ -16,7 +16,8 @@ class BulletPattern:
         self.attacker = attacker
 
         self.time = 0
-        self.bullets_sprite_list = [] # When spawning a bullet, add it to this list so it can be cleaned up later
+        self.bullets = [] # When spawning a bullet, add it to this list so it can be cleaned up later
+        self.bullet_sprites = []
         self.total_duration = total_duration
         self.is_terminated = False
 
@@ -29,10 +30,11 @@ class BulletPattern:
     def terminate_animation(self):
         self.is_terminated = True
 
-        for sprite in self.bullets_sprite_list:
-            sprite.kill()
-            if sprite in self.sprites_and_effects_collection.effects:
-                self.sprites_and_effects_collection.effects.remove(sprite)
+        for bullet in self.bullets:
+            if bullet in self.sprites_and_effects_collection.effects:
+                self.sprites_and_effects_collection.effects.remove(bullet)
+        for bullet_sprite in self.bullet_sprites:
+            bullet_sprite.kill()
 
     def spawn_bullet(self, bullet: Bullet):
         """
@@ -41,12 +43,13 @@ class BulletPattern:
         """
         if hasattr(bullet, "get_sprites"):
             for sprite in bullet.get_sprites():
-                self.bullets_sprite_list.append(sprite)
+                self.bullet_sprites.append(sprite)
                 self.sprites_and_effects_collection.bullet_sprites.append(sprite)
         else:
-            self.bullets_sprite_list.append(bullet)
+            self.bullet_sprites.append(bullet)
             self.sprites_and_effects_collection.bullet_sprites.append(bullet)
 
+        self.bullets.append(bullet)
         self.sprites_and_effects_collection.effects.append(bullet)
 
     def spawn_bullets(self, bullets: list[Bullet]):
@@ -54,16 +57,8 @@ class BulletPattern:
         Add sprites to the bullets sprite list. Also adds the new sprites to the effects sprite list.
         :return: None
         """
-
         for bullet in bullets:
-            if hasattr(bullet, "get_sprites"):
-                for sprite in bullet.get_sprites():
-                    self.bullets_sprite_list.append(sprite)
-                    self.sprites_and_effects_collection.bullet_sprites.append(sprite)
-            else:
-                self.bullets_sprite_list.append(bullet)
-                self.sprites_and_effects_collection.bullet_sprites.append(bullet)
-            self.sprites_and_effects_collection.effects.append(bullet)
+            self.spawn_bullet(bullet)
 
 
 class RainingDiamondBulletPattern(BulletPattern):
@@ -125,7 +120,7 @@ class CatPounceBulletPattern(BulletPattern):
         # Spawn another cat if the last cat goes off the screen
         if self.frames_elapsed_since_last_cat_spawn >= self.number_of_frames_per_cat_spawn:
             self.frames_elapsed_since_last_cat_spawn = 0
-            self.bullets_sprite_list.pop(0)
+            self.bullets.pop(0)
             cat_bullet = CatBullet(
                 sprites_and_effects_collection=self.sprites_and_effects_collection,
                 center_x=settings.WINDOW_WIDTH + self.distance_between_each_cat,
@@ -168,7 +163,6 @@ class PointedTailStabBulletPattern(BulletPattern):
         number_of_tail_segments = 10
         for i in range(number_of_tail_segments):
             tail_circle = TailCircleBullet(
-                radius=5,
                 center_x=int((settings.WINDOW_WIDTH / 3) + (72 * i)),
                 center_y=int(settings.WINDOW_HEIGHT / 3),
                 sprites_and_effects_collection=sprites_and_effects_collection
