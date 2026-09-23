@@ -435,7 +435,8 @@ class TailCircleBullet(CircleBullet):
 
 class TailCircleBullet(Bullet):
     def __init__(self, radius: int = 6, center_x: int = 0, center_y: int = 0,
-                 sprites_and_effects_collection: SpritesAndEffectsCollection = None):
+                 sprites_and_effects_collection: SpritesAndEffectsCollection = None,
+                 attacker = None):
         self.line_width = 2
         self.pulsation_width = 1
         self.starting_radius = radius
@@ -464,7 +465,8 @@ class TailCircleBullet(Bullet):
             scale=4.0,
             element_id=6,
             lifetime=10.0,
-            sprites_and_effects_collection=sprites_and_effects_collection
+            sprites_and_effects_collection=sprites_and_effects_collection,
+            attacker=attacker
         )
 
         self.initial_center_x = center_x
@@ -508,7 +510,8 @@ class TailCircleBullet(Bullet):
 
 class TailPointBullet(Bullet):
     def __init__(self, center_x: int = 0, center_y: int = 0, angle: float = 0.0,
-                 sprites_and_effects_collection: SpritesAndEffectsCollection = None):
+                 sprites_and_effects_collection: SpritesAndEffectsCollection = None,
+                 attacker = None):
 
         # The image generated of the point on FRIENDs tail.
         self.tail_point_image = PIL.Image.new("RGBA", (48, 48), (0, 0, 0, 0))
@@ -536,7 +539,8 @@ class TailPointBullet(Bullet):
             base_damage=20.0,
             element_id=6,
             lifetime=10.0,
-            sprites_and_effects_collection=sprites_and_effects_collection
+            sprites_and_effects_collection=sprites_and_effects_collection,
+            attacker=attacker
         )
 
         self.initial_center_x = center_x

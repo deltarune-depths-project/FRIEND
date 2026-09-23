@@ -63,3 +63,6 @@ def ease_in_circ(percent: float):
 
 def ease_out_circ(percent: float):
     return 1 - math.sqrt(1 - ((percent - 1) ** 2))
+
+def ease_out_quint(percent: float):
+    return 1 - math.pow(1 - percent, 5)

@@ -1,9 +1,12 @@
 import math
 import random
 
+from arcade.easing import ease_out
+
 import settings
 from bullet_board import BulletBoard
 from bullets import Bullet, BlackDiamondBullet, CatBullet, TailCircleBullet, TailPointBullet
+from math_methods import ease_out_quint
 from soul import Soul
 from sprites_and_effects_collection import SpritesAndEffectsCollection
 
@@ -149,38 +152,63 @@ class PointedTailStabBulletPattern(BulletPattern):
 
         self.soul = soul
 
-        self.tail_point = TailPointBullet(
-            center_x=int((settings.WINDOW_WIDTH / 3) - 72),
-            center_y=int(settings.WINDOW_HEIGHT / 3),
-            angle=90,
-            sprites_and_effects_collection=sprites_and_effects_collection
-        )
-
-        self.spawn_bullet(self.tail_point)
-
         self.tail_segments = []
+
+        self.starting_x = int(settings.WINDOW_WIDTH * .75)
+        self.starting_y = int(settings.WINDOW_HEIGHT / 2)
 
         number_of_tail_segments = 10
         for i in range(number_of_tail_segments):
             tail_circle = TailCircleBullet(
-                center_x=int((settings.WINDOW_WIDTH / 3) + (72 * i)),
-                center_y=int(settings.WINDOW_HEIGHT / 3),
-                sprites_and_effects_collection=sprites_and_effects_collection
+                center_x=self.starting_x,
+                center_y=self.starting_y,
+                sprites_and_effects_collection=sprites_and_effects_collection,
+                attacker=attacker
             )
 
             self.tail_segments.append(tail_circle)
 
         self.spawn_bullets(self.tail_segments)
 
+        self.tail_point = TailPointBullet(
+            center_x=self.starting_x,
+            center_y=self.starting_y,
+            angle=90,
+            sprites_and_effects_collection=sprites_and_effects_collection,
+            attacker=attacker
+        )
+
+        self.spawn_bullet(self.tail_point)
+
         # Animation variables
         self.rotation_duration = 2.0
-        self.rotation_radius = 20
+        self.rotation_radius = 10
+        
+        # The arcade module and the math module have their 0 degree starting points 90 degrees apart
+        tail_point_angle = self.tail_point.angle + 90
+
+        self.max_length_of_tail = 666
+        self.tail_extension_duration = 0.5
+        self.ending_x = self.starting_x + (self.max_length_of_tail * math.cos(math.radians(tail_point_angle)))
+        self.ending_y = self.starting_y + (self.max_length_of_tail * math.sin(math.radians(tail_point_angle)))
+        self.tail_point_dx = self.ending_x - self.starting_x
+        self.tail_point_dy = self.ending_y - self.starting_y
 
     def update_animation(self, delta_time: float):
         super().update_animation(delta_time)
 
-        radians = (self.time * math.pi) / 2
+        radians = (self.time * math.pi) / self.rotation_duration
+        num_of_tail_segments_plus_point = len(self.bullets)
 
-        for segment in self.tail_segments:
-            segment.center_x = segment.initial_center_x + (self.rotation_radius * math.cos(radians))
-            segment.center_y = segment.initial_center_y + (self.rotation_radius * math.sin(radians))
+        for i in range(num_of_tail_segments_plus_point):
+            # Bob the tail segments up and down
+            self.bullets[i].center_y = self.bullets[i].initial_center_y + (self.rotation_radius * math.sin(radians))
+            radians += (self.rotation_duration * num_of_tail_segments_plus_point) / (math.pi / 2)
+
+            if self.time < self.tail_extension_duration:
+                # Shoot the tail out to the left
+                fraction_of_ease = i / num_of_tail_segments_plus_point
+                self.bullets[i].center_x = self.starting_x + (self.tail_point_dx * ease_out_quint((self.time / self.tail_extension_duration)) * fraction_of_ease)
+                self.bullets[i].center_y = self.starting_y + (self.tail_point_dy * ease_out_quint((self.time / self.tail_extension_duration)) * fraction_of_ease)
+
+
