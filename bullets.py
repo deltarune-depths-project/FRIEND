@@ -466,11 +466,14 @@ class TailCircleBullet(Bullet):
             element_id=6,
             lifetime=10.0,
             sprites_and_effects_collection=sprites_and_effects_collection,
-            attacker=attacker
+            attacker=attacker,
+            kill_bullet_when_offscreen=False
         )
 
         self.initial_center_x = center_x
         self.initial_center_y = center_y
+
+        self.t = 0.0
 
         self.old_radius = self.starting_radius
 
@@ -540,11 +543,14 @@ class TailPointBullet(Bullet):
             element_id=6,
             lifetime=10.0,
             sprites_and_effects_collection=sprites_and_effects_collection,
-            attacker=attacker
+            attacker=attacker,
+            kill_bullet_when_offscreen=False
         )
 
         self.initial_center_x = center_x
         self.initial_center_y = center_y
+
+        self.t = 0
 
     def update_animation(self, delta_time: float):
         self.time += delta_time
