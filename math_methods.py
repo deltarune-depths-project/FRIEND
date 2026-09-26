@@ -66,3 +66,26 @@ def ease_out_circ(percent: float):
 
 def ease_out_quint(percent: float):
     return 1 - math.pow(1 - percent, 5)
+
+def rotate_points(points, angle_deg, center=(24, 24)):
+    cx, cy = center
+    angle = math.radians(angle_deg)
+
+    cos_t = math.cos(angle)
+    sin_t = math.sin(angle)
+
+    rotated = []
+
+    for x, y in points:
+        # Translate to origin
+        dx = x - cx
+        dy = y - cy
+
+        # Rotate
+        rx = dx * cos_t - dy * sin_t
+        ry = dx * sin_t + dy * cos_t
+
+        # Translate back
+        rotated.append((rx + cx, ry + cy))
+
+    return rotated

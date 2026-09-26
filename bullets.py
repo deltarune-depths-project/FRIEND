@@ -9,6 +9,7 @@ from arcade import Sprite, Texture, SpriteCircle
 from arcade.examples.sprite_health import sprite_off_screen
 from arcade.hitbox import HitBox
 
+import math_methods
 import settings
 from graphics_objects import AnimationState
 from enum import Enum, auto
@@ -521,7 +522,7 @@ class TailPointBullet(Bullet):
         self.tail_point_image_draw = ImageDraw.Draw(self.tail_point_image)
 
         self.tail_default_polygon = [
-            (24, 40), (36, 9), (24, 16), (12, 9)
+            [24, 40], [36, 9], [24, 16], [12, 9]
         ]
 
         self.tail_point_image_draw.polygon(
@@ -551,6 +552,33 @@ class TailPointBullet(Bullet):
         self.initial_center_y = center_y
 
         self.t = 0
+
+    def reangle_tail(self, new_angle: float):
+        """Reangles the tail to the newly provided angle"""
+
+        # Clear the image
+        self.tail_point_image = PIL.Image.new("RGBA", (48, 48), (0, 0, 0, 0))
+        self.tail_point_image_draw = ImageDraw.Draw(self.tail_point_image)
+
+        # Come up with a new set of points
+        new_tail_point_polygon = math_methods.rotate_points(
+            self.tail_default_polygon,
+            angle_deg=new_angle,
+            center=(24, 24)
+        )
+
+        self.tail_point_image_draw.polygon(
+            xy=new_tail_point_polygon,
+            fill=(0, 0, 0),
+            outline=(255, 255, 255),
+            width=2
+        )
+
+        self.tail_point_texture = arcade.Texture(image=self.tail_point_image)
+
+        self.texture = self.tail_point_texture
+
+        self.scale = 4.0
 
     def update_animation(self, delta_time: float):
         self.time += delta_time

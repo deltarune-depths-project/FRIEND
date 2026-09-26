@@ -229,6 +229,8 @@ class PointedTailStabBulletPattern(BulletPattern):
                     self.tail_not_fully_extended = False
                 if self.time < self.duration_before_tail_retract:
                     # Bob the tail segments up and down
+                    current_bullet.center_y = current_bullet.initial_center_x + (
+                            self.rotation_radius * math.cos(radians))
                     current_bullet.center_y = current_bullet.initial_center_y + (
                                 self.rotation_radius * math.sin(radians))
                     radians -= ((self.rotation_duration / num_of_tail_segments_plus_point) * (
@@ -244,7 +246,6 @@ class PointedTailStabBulletPattern(BulletPattern):
                         self.t = self.time_elapsed_since_tail_retraction ** 2
                         if self.tail_retract_positions_not_set:
                             current_bullet.t = -(i * self.distance_between_max_extended_tail_segments) / 107.5
-                            #current_bullet.center_x =
                             if i == num_of_tail_segments_plus_point - 1:
                                 self.tail_retract_positions_not_set = False
                         else:
@@ -252,4 +253,7 @@ class PointedTailStabBulletPattern(BulletPattern):
                             current_bullet.center_x = self.bullets[0].initial_center_x - (10*((10*current_bullet.t*self.cos_of_tail_angle_in_radians) - (2*math.sin(current_bullet.t) * self.sin_of_tail_angle_in_radians)))
                             current_bullet.center_y = self.bullets[0].initial_center_y - (10*((10*current_bullet.t*self.sin_of_tail_angle_in_radians) + (2*math.sin(current_bullet.t) * self.cos_of_tail_angle_in_radians)))
                         if i == num_of_tail_segments_plus_point - 1:
+                            new_tail_point_angle = math.degrees(self.tail_angle_in_radians - math.atan(math.cos(current_bullet.t) / 2) + math.pi)
+                            current_bullet.reangle_tail(new_tail_point_angle)
                             self.time_elapsed_since_tail_retraction += delta_time
+
