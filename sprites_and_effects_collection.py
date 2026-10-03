@@ -83,10 +83,10 @@ class SpritesAndEffectsCollection:
             for sprite in self.effects_sprites:
                 sprite.draw_hit_box(color=arcade.color.GREEN)
             """
-
+            """
             for sprite in self.bullet_sprites:
                 sprite.draw_hit_box(color=arcade.color.GREEN)
-
+            """
             """
             for sprite in self.soul_sprites:
                 sprite.draw_hit_box(color=arcade.color.GREEN)

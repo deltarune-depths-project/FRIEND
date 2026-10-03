@@ -156,7 +156,7 @@ class PointedTailStabBulletPattern(BulletPattern):
         self.tail_segments = []
 
         # These variables control the starting coordinates of the tail.
-        self.max_length_of_tail = 1200
+        self.max_length_of_tail = 1600
         self.angle = random.randint(0, 360)
         # The arcade module and the math module have their 0 degree starting points 90 degrees apart
         self.tail_angle = self.angle + 90
@@ -165,10 +165,10 @@ class PointedTailStabBulletPattern(BulletPattern):
         self.cos_of_angle_in_radians = math.cos(math.radians(self.angle))
         self.sin_of_tail_angle_in_radians = math.sin(math.radians(self.tail_angle))
         self.cos_of_tail_angle_in_radians = math.cos(math.radians(self.tail_angle))
-        self.starting_x = int(self.soul.center_x - ((self.max_length_of_tail * .75) * self.cos_of_tail_angle_in_radians))
-        self.starting_y = int(self.soul.center_y - ((self.max_length_of_tail * .75) * self.sin_of_tail_angle_in_radians))
+        self.starting_x = int(self.soul.center_x - ((self.max_length_of_tail * .66) * self.cos_of_tail_angle_in_radians))
+        self.starting_y = int(self.soul.center_y - ((self.max_length_of_tail * .66) * self.sin_of_tail_angle_in_radians))
 
-        self.number_of_tail_segments = 16
+        self.number_of_tail_segments = 12
         for i in range(self.number_of_tail_segments):
             tail_circle = TailCircleBullet(
                 center_x=self.starting_x,
@@ -257,7 +257,7 @@ class PointedTailStabBulletPattern(BulletPattern):
                         # Make all the segments travel off of the screen in a sine wave
                         self.t = self.time_elapsed_since_tail_retraction ** 2
                         if self.tail_retract_positions_not_set:
-                            current_bullet.t = -(i * self.distance_between_max_extended_tail_segments) / 107.5
+                            current_bullet.t = -(i * self.distance_between_max_extended_tail_segments) / 109
                             if i == num_of_tail_segments_plus_point - 1:
                                 self.tail_retract_positions_not_set = False
                         else:

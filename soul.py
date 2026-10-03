@@ -69,7 +69,7 @@ class Soul(arcade.Sprite):
             )
         )
 
-        self.movement_speed = 4.0
+        self.movement_speed = 5.0
 
         self.visible = False
 
