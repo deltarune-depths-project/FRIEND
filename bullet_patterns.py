@@ -1,6 +1,7 @@
 import math
 import random
 
+import arcade
 from arcade.easing import ease_out
 
 import settings
@@ -199,7 +200,7 @@ class PointedTailStabBulletPattern(BulletPattern):
         self.tail_point_dx = self.ending_x - self.starting_x
         self.tail_point_dy = self.ending_y - self.starting_y
 
-        self.duration_before_tail_retract = 1.0
+        self.duration_before_tail_retract = 0.5
         self.distance_between_max_extended_tail_segments = self.max_length_of_tail / self.number_of_tail_segments
         self.t = 1.0
 
@@ -207,6 +208,12 @@ class PointedTailStabBulletPattern(BulletPattern):
         self.tail_not_fully_extended = True
         self.tail_hasnt_started_retracting = True
         self.tail_retract_positions_not_set = True
+
+        # Sounds
+        self.tail_extend_sound = arcade.load_sound("assets/audio/battle/non_player_character/FRIEND/tail_extend_wip.wav")
+        self.tail_retract_sound = arcade.load_sound("assets/audio/battle/non_player_character/FRIEND/tail_retract.wav")
+
+        self.tail_extend_sound.play()
 
     def update_animation(self, delta_time: float):
         super().update_animation(delta_time)
@@ -241,6 +248,8 @@ class PointedTailStabBulletPattern(BulletPattern):
                         current_bullet.initial_center_y = current_bullet.center_y
                         if i == num_of_tail_segments_plus_point - 1:
                             self.tail_hasnt_started_retracting = False
+                            self.tail_retract_sound.play(volume=0.5)
+
                     else:
                         # Make all the segments travel off of the screen in a sine wave
                         self.t = self.time_elapsed_since_tail_retraction ** 2
@@ -253,7 +262,7 @@ class PointedTailStabBulletPattern(BulletPattern):
                             current_bullet.center_x = self.bullets[0].initial_center_x - (10*((10*current_bullet.t*self.cos_of_tail_angle_in_radians) - (2*math.sin(current_bullet.t) * self.sin_of_tail_angle_in_radians)))
                             current_bullet.center_y = self.bullets[0].initial_center_y - (10*((10*current_bullet.t*self.sin_of_tail_angle_in_radians) + (2*math.sin(current_bullet.t) * self.cos_of_tail_angle_in_radians)))
                         if i == num_of_tail_segments_plus_point - 1:
-                            new_tail_point_angle = math.degrees(self.tail_angle_in_radians - math.atan(math.cos(current_bullet.t) / 2) + math.pi)
+                            new_tail_point_angle = math.degrees(self.tail_angle_in_radians - math.atan(math.cos(current_bullet.t) / 4) + math.pi)
                             current_bullet.reangle_tail(new_tail_point_angle)
                             self.time_elapsed_since_tail_retraction += delta_time
 
