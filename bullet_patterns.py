@@ -197,15 +197,15 @@ class PointedTailStabBulletPattern(BulletPattern):
         self.wavelength = 0.2
         self.time_elapsed_since_tail_retraction = 0.0
 
-        self.tail_extension_duration = 0.5
+        self.tail_extension_duration = 1.0
         self.ending_x = self.starting_x + (self.max_length_of_tail * math.cos(self.tail_angle_in_radians))
         self.ending_y = self.starting_y + (self.max_length_of_tail * math.sin(self.tail_angle_in_radians))
         self.tail_point_dx = self.ending_x - self.starting_x
         self.tail_point_dy = self.ending_y - self.starting_y
 
-        self.duration_before_tail_retract = 0.5
+        self.duration_before_tail_retract = 0.8
         self.distance_between_max_extended_tail_segments = self.max_length_of_tail / self.number_of_tail_segments
-        self.t = 1.0
+        self.t = 0.8
 
         # Animation flags
         self.tail_not_fully_extended = True

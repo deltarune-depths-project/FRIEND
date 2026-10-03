@@ -70,9 +70,24 @@ class TailJabAttack(EnemyAttack):
         super().__init__(sprites_and_effects_collection, 10.0)
         self.attacker = attacker
         self.soul = soul
-        self.rate_of_attack_in_seconds = 1.0
 
-    def spawn_tail_stab_bullet_pattern(self, dt):
+        self.time = 0.0
+        self.rate_of_bullet_pattern_spawns_in_seconds = 1.0
+        self.time_since_last_bullet_pattern_spawn = 0.0
+        self.time_to_terminate_attack = self.duration - 0.1
+
+    def update_animation(self, delta_time: float):
+        self.time += delta_time
+
+        if self.time > self.time_to_terminate_attack:
+            self.sprites_and_effects_collection.effects.remove(self)
+
+        self.time_since_last_bullet_pattern_spawn += delta_time
+        if self.time_since_last_bullet_pattern_spawn > self.rate_of_bullet_pattern_spawns_in_seconds:
+            self.spawn_tail_stab_bullet_pattern()
+            self.time_since_last_bullet_pattern_spawn -= self.rate_of_bullet_pattern_spawns_in_seconds
+
+    def spawn_tail_stab_bullet_pattern(self):
         tail_stab_bullet_pattern = PointedTailStabBulletPattern(
             sprites_and_effects_collection=self.sprites_and_effects_collection,
             attacker=self.attacker,
@@ -82,18 +97,8 @@ class TailJabAttack(EnemyAttack):
         self.sprites_and_effects_collection.effects.append(tail_stab_bullet_pattern)
         self.bullet_patterns.append(tail_stab_bullet_pattern)
 
-    def start_tail_stab_sequence(self, dt):
-        pyglet.clock.schedule_interval_for_duration(
-            func=self.spawn_tail_stab_bullet_pattern,
-            interval=self.rate_of_attack_in_seconds,
-            duration=self.duration
-        )
-
     def execute_attack(self):
-        pyglet.clock.schedule_once(
-            self.start_tail_stab_sequence,
-            delay=0.5
-        )
+        self.sprites_and_effects_collection.effects.append(self)
 
         return 10.0
 
