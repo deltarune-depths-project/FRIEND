@@ -144,7 +144,7 @@ class CatPounceBulletPattern(BulletPattern):
 
 
 class PointedTailStabBulletPattern(BulletPattern):
-    def __init__(self, sprites_and_effects_collection, soul: Soul = None, total_duration: float = 10.0, attacker = None):
+    def __init__(self, sprites_and_effects_collection, soul: Soul = None, total_duration: float = 2.5, attacker = None):
         super().__init__(
             sprites_and_effects_collection=sprites_and_effects_collection,
             total_duration=total_duration,

@@ -7,7 +7,7 @@ from PIL import ImageDraw
 from PIL.Image import Image
 from arcade import Sprite, Texture, SpriteCircle
 from arcade.examples.sprite_health import sprite_off_screen
-from arcade.hitbox import HitBox
+from arcade.hitbox import HitBox, RotatableHitBox
 
 import math_methods
 import settings
@@ -553,6 +553,22 @@ class TailPointBullet(Bullet):
 
         self.t = 0
 
+        # Hitbox designation
+        self.hit_box_points = math_methods.multiply_matrix_by_scalar(
+            math_methods.translate_matrix(self.tail_default_polygon, -24, -24),
+            self.scale_x
+        )
+
+
+        self.hit_box = RotatableHitBox(
+            points=self.hit_box_points,
+            position=(
+                self.center_x,
+                self.center_y
+            ),
+            angle=angle + 180
+        )
+
     def reangle_tail(self, new_angle: float):
         """Reangles the tail to the newly provided angle"""
 
@@ -579,6 +595,18 @@ class TailPointBullet(Bullet):
         self.texture = self.tail_point_texture
 
         self.scale = 4.0
+
+        self.hit_box.angle = new_angle + self.angle + 180
+        """
+        # RotatableHitBox(
+            points=self.hit_box_points,
+            position=(
+                self.center_x,
+                self.center_y
+            ),
+            angle=new_angle + self.angle + 180
+        )
+        """
 
     def update_animation(self, delta_time: float):
         self.time += delta_time

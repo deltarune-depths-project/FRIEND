@@ -67,7 +67,7 @@ def ease_out_circ(percent: float):
 def ease_out_quint(percent: float):
     return 1 - math.pow(1 - percent, 5)
 
-def rotate_points(points, angle_deg, center=(24, 24)):
+def rotate_points(points, angle_deg, center=(0, 0)):
     cx, cy = center
     angle = math.radians(angle_deg)
 
@@ -89,3 +89,18 @@ def rotate_points(points, angle_deg, center=(24, 24)):
         rotated.append((rx + cx, ry + cy))
 
     return rotated
+
+def multiply_matrix_by_scalar(points, scalar):
+    new_points = []
+    for i in range(len(points)):
+        new_points.append([points[i][0] * scalar, points[i][1] * scalar])
+
+    return new_points
+
+def translate_matrix(points, dx, dy):
+    new_points = []
+    for i in range(len(points)):
+        new_points.append([points[i][0] + dx, points[i][1] + dy])
+
+    return new_points
+
