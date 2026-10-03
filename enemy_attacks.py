@@ -1,5 +1,7 @@
 from math import atan
 
+import pyglet.clock
+
 from bullet_board import BulletBoard
 from bullet_patterns import RainingDiamondBulletPattern, CatPounceBulletPattern, PointedTailStabBulletPattern
 from enemy_attack import EnemyAttack
@@ -68,15 +70,30 @@ class TailJabAttack(EnemyAttack):
         super().__init__(sprites_and_effects_collection, 10.0)
         self.attacker = attacker
         self.soul = soul
+        self.rate_of_attack_in_seconds = 1.0
 
-    def execute_attack(self):
+    def spawn_tail_stab_bullet_pattern(self, dt):
         tail_stab_bullet_pattern = PointedTailStabBulletPattern(
             sprites_and_effects_collection=self.sprites_and_effects_collection,
-            attacker=self.attacker
+            attacker=self.attacker,
+            soul=self.soul
         )
 
         self.sprites_and_effects_collection.effects.append(tail_stab_bullet_pattern)
         self.bullet_patterns.append(tail_stab_bullet_pattern)
+
+    def start_tail_stab_sequence(self, dt):
+        pyglet.clock.schedule_interval_for_duration(
+            func=self.spawn_tail_stab_bullet_pattern,
+            interval=self.rate_of_attack_in_seconds,
+            duration=self.duration
+        )
+
+    def execute_attack(self):
+        pyglet.clock.schedule_once(
+            self.start_tail_stab_sequence,
+            delay=0.5
+        )
 
         return 10.0
 

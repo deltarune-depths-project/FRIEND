@@ -115,16 +115,16 @@ class FRIEND(NonPlayerCharacter):
                 #    attacker=self,
                 #    enemies_list=enemies_list
                 #),
+                TailJabAttack(
+                    sprites_and_effects_collection=sprites_and_effects_collection,
+                    attacker=self,
+                    soul=soul
+                ),
                 #CatPounceAttack(
                 #    sprites_and_effects_collection=sprites_and_effects_collection,
                 #    attacker=self,
                 #    soul=soul
                 #),
-                TailJabAttack(
-                    sprites_and_effects_collection=sprites_and_effects_collection,
-                    attacker=self,
-                    soul=soul
-                )
             ],
             acts=[
                 RudinnRedBuster(),
