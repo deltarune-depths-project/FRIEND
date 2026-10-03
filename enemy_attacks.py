@@ -74,13 +74,9 @@ class TailJabAttack(EnemyAttack):
         self.time = 0.0
         self.rate_of_bullet_pattern_spawns_in_seconds = 1.0
         self.time_since_last_bullet_pattern_spawn = 0.0
-        self.time_to_terminate_attack = self.duration - 0.1
 
     def update_animation(self, delta_time: float):
         self.time += delta_time
-
-        if self.time > self.time_to_terminate_attack:
-            self.sprites_and_effects_collection.effects.remove(self)
 
         self.time_since_last_bullet_pattern_spawn += delta_time
         if self.time_since_last_bullet_pattern_spawn > self.rate_of_bullet_pattern_spawns_in_seconds:
@@ -101,6 +97,11 @@ class TailJabAttack(EnemyAttack):
         self.sprites_and_effects_collection.effects.append(self)
 
         return 10.0
+
+    def terminate_attack(self):
+        super().terminate_attack()
+        if self in self.sprites_and_effects_collection.effects:
+             self.sprites_and_effects_collection.effects.remove(self)
 
 def get_number_of_unique_enemies_from_enemies_list(enemies_list: list):
     """
