@@ -111,6 +111,7 @@ class CircleBullet(SpriteCircle):
         if self.time > self.lifetime:
             self.kill()
 
+
 class BlackDiamondBullet(Bullet):
     """
     The black diamond bullet. Used a lot in Chapter 1, primarily by Rudinns but also by enemies like Jevil.

@@ -1,6 +1,8 @@
 #import arcade
 #from PIL.ImagePath import Path
 from arcade import Sprite, Texture
+from arcade.shape_list import Shape, ShapeElementList
+
 #from pyglet.math import Vec2
 
 import texture_methods
@@ -135,9 +137,43 @@ class SingleSpriteAnimation:
         self.total_duration = total_duration
         self.is_terminated = False
 
+    def update_animation(self, delta_time):
+        self.time += delta_time
+        if hasattr(self.sprite, "update_animation"):
+            self.sprite.update_animation(delta_time)
+
     # Communicates to parent animation lists to remove this animation.
     def terminate_animation(self):
         self.is_terminated = True
+
+class MultiShapeAnimation:
+    def __init__(self,
+                 parent_shape_lists: list[ShapeElementList],
+                 shapes: list[Shape] = None,
+                 center_x: int = 0,
+                 center_y: int = 0,
+                 total_duration: float = 1.0,
+                 delta_time: float = 0.05):
+        self.parent_shape_lists = parent_shape_lists
+        self.shapes = shapes
+        self.center_x = center_x
+        self.center_y = center_y
+        self.total_duration = total_duration
+        self.delta_time = delta_time
+        self.is_terminated = False
+
+        self.time = 0.0
+
+    def update_animation(self, delta_time: float = 0.05):
+        self.time += delta_time
+        if self.time > self.total_duration:
+            self.terminate_animation()
+
+    def terminate_animation(self):
+        for shape in self.shapes:
+            for shape_list in self.parent_shape_lists:
+                if shape in shape_list:
+                    shape_list.remove(shape)
 
 
 class AnimationState:

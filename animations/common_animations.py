@@ -1,9 +1,12 @@
 #import math
 import random
 
+import PIL.Image
 import arcade.color
+from PIL import ImageDraw
 from arcade import Sprite, Rect, LRBT, Texture, Text
 from arcade.easing import ease_in, ease_out
+from arcade.shape_list import Shape, ShapeElementList
 #from arcade.easing import ease_in_out, ease_in
 from arcade.types import Color
 
@@ -11,12 +14,13 @@ import graphics_methods
 import settings
 import texture_methods
 from graphics_methods import make_texture_solid_color, ease_out
-from graphics_objects import SingleSpriteAnimation, MultiSpriteAnimation
+from graphics_objects import SingleSpriteAnimation, MultiSpriteAnimation, MultiShapeAnimation
 
 import math
 
 from music_player import MusicPlayer
 from soul import Soul
+from sprites_and_effects_collection import SpritesAndEffectsCollection
 from text_box import SpriteTextBox, SpriteTextBoxDialog, HimTextBox
 
 
@@ -638,3 +642,125 @@ class GameOverAnimation(MultiSpriteAnimation):
         self.him_text_line_2.despawn_text_box()
         self.him_text_line_3.despawn_text_box()
         self.him_textboxes_not_despawned = False
+
+
+class DarknessFootstepAnimation(SingleSpriteAnimation):
+    def __init__(
+            self,
+            center_x: int = 0,
+            center_y: int = 0,
+            min_diameter: int = 60,
+            line_thickness: int = 8,
+            rate_of_growth: int = 1.5,
+            color: Color = arcade.color.WHITE
+        ):
+
+        self.center_x = center_x
+        self.center_y = center_y
+        self.min_diameter = min_diameter
+        self.line_thickness = line_thickness
+        self.rate_of_growth = rate_of_growth
+        self.color = color
+
+        self.number_of_circles = 4
+
+        self.starting_scale_inversion = 8
+        self.starting_scale = 1/self.starting_scale_inversion
+
+        self.image_width = min_diameter * self.starting_scale_inversion
+
+        image = PIL.Image.new(
+            mode='RGBA',
+            size=(self.image_width, self.image_width),
+            color=(0, 0, 0, 0)
+        )
+
+        image_draw = ImageDraw.Draw(image)
+
+        for i in range(self.number_of_circles):
+            color = (
+                self.color.r,
+                self.color.g,
+                self.color.b,
+                min(255, int((i + 1) * (255/self.number_of_circles)))
+            )
+
+            image_draw.regular_polygon(
+                bounding_circle=(int(self.image_width / 2), int(self.image_width / 2), ((self.min_diameter / 2) + (self.line_thickness * i) - (2*i))),
+                n_sides=24,
+                outline=color,
+                width=self.line_thickness,
+            )
+
+        self.texture = Texture(image)
+
+        sprite = Sprite(
+            path_or_texture=self.texture,
+            center_x=self.center_x,
+            center_y=self.center_y,
+            scale=1/self.starting_scale_inversion,
+        )
+
+        super().__init__(
+            sprite=sprite,
+            total_duration=2.0
+        )
+
+        self.half_total_duration = self.total_duration / 2
+
+    def update_animation(self, delta_time: float):
+        self.time += delta_time
+        if self.time > self.total_duration:
+            self.terminate_animation()
+
+        self.sprite.scale = self.starting_scale + (self.time * self.rate_of_growth)
+
+        if self.time > self.half_total_duration:
+            self.sprite.alpha = max(0, int(255 * ((self.total_duration - self.time) / self.half_total_duration)))
+
+
+"""
+class DarknessFootstepAnimation(MultiShapeAnimation):
+    def __init__(self,
+                 parent_shape_lists: list[ShapeElementList],
+                 total_duration: float = 2.0,
+                 center_x: int = 0,
+                 center_y: int = 0,
+                 color: Color = arcade.color.WHITE):
+        super().__init__(
+            parent_shape_lists=parent_shape_lists,
+            center_x=center_x,
+            center_y=center_y,
+            total_duration=total_duration
+        )
+        self.center_x = center_x
+        self.center_y = center_y
+        self.color = color
+
+        # Animation variables
+        min_diameter = 20
+        border_width = 10
+        self.growth_rate = 100
+
+        for i in range(4):
+            self.shapes.append(
+                arcade.shape_list.create_ellipse_outline(
+                    center_x=self.center_x,
+                    center_y=self.center_y,
+                    width=min_diameter,
+                    height=min_diameter,
+                    color=color,
+                    border_width=border_width,
+                    num_segments=24
+                )
+            )
+
+    def update_animation(self, delta_time: float):
+        super().update_animation(delta_time)
+
+        for i in range(len(self.shapes)):
+            shape = self.shapes.
+            shape.width += self.growth_rate * delta_time
+        for shape in self.shapes:
+"""
+

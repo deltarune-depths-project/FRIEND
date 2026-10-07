@@ -1,6 +1,7 @@
 import arcade
 from arcade import Camera2D, SpriteList
 from arcade.gui import UIManager
+from arcade.shape_list import ShapeElementList
 
 from text_texture_dicts import BattleMessageTextureDict, BattleMessageImageDict, DWDefaultTextureDict
 from texture_methods import load_textures_at_filepath_into_texture_array
@@ -20,6 +21,7 @@ class SpritesAndEffectsCollection:
         self.manager = manager
 
         self.background_sprites = SpriteList()  # Background sprites, like the animated background in battle.
+        self.background_shapes = ShapeElementList()
         self.character_sprites = SpriteList()  # Character sprites, like for player characters/non player characters
         self.gui_sprites_1 = SpriteList()  # Widget-esque sprites that are not actually widgets
         self.effects_sprites = SpriteList()  # Effects sprites, like the animations for attacking/spells
@@ -58,6 +60,7 @@ class SpritesAndEffectsCollection:
             with self.camera.activate():
                 if self.is_drawing_background_sprites:
                     self.background_sprites.draw(pixelated=True)
+                    self.background_shapes.draw()
                 if self.is_drawing_character_sprites:
                     self.character_sprites.draw(pixelated=True)
                 if self.is_drawing_gui_sprites:

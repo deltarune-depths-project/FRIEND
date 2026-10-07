@@ -1,7 +1,9 @@
 from math import atan
 
+import arcade
 import pyglet.clock
 
+from animations.common_animations import DarknessFootstepAnimation
 from bullet_board import BulletBoard
 from bullet_patterns import RainingDiamondBulletPattern, CatPounceBulletPattern, PointedTailStabBulletPattern
 from enemy_attack import EnemyAttack
@@ -81,6 +83,7 @@ class TailJabAttack(EnemyAttack):
         self.time_since_last_bullet_pattern_spawn += delta_time
         if self.time_since_last_bullet_pattern_spawn > self.rate_of_bullet_pattern_spawns_in_seconds:
             self.spawn_tail_stab_bullet_pattern()
+            self.spawn_footstep_animation()
             self.time_since_last_bullet_pattern_spawn -= self.rate_of_bullet_pattern_spawns_in_seconds
 
     def spawn_tail_stab_bullet_pattern(self):
@@ -92,6 +95,16 @@ class TailJabAttack(EnemyAttack):
 
         self.sprites_and_effects_collection.effects.append(tail_stab_bullet_pattern)
         self.bullet_patterns.append(tail_stab_bullet_pattern)
+
+    def spawn_footstep_animation(self):
+        footstep_animation = DarknessFootstepAnimation(
+            center_x=self.soul.center_x,
+            center_y=self.soul.center_y,
+            color=arcade.color.RED
+        )
+
+        self.sprites_and_effects_collection.effects.append(footstep_animation)
+        self.sprites_and_effects_collection.soul_sprites.append(footstep_animation.sprite)
 
     def execute_attack(self):
         self.sprites_and_effects_collection.effects.append(self)
