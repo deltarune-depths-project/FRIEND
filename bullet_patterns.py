@@ -144,7 +144,8 @@ class CatPounceBulletPattern(BulletPattern):
 
 
 class PointedTailStabBulletPattern(BulletPattern):
-    def __init__(self, sprites_and_effects_collection, soul: Soul = None, total_duration: float = 2.5, attacker = None):
+    def __init__(self, sprites_and_effects_collection, soul: Soul = None, total_duration: float = 2.5, attacker = None,
+                 center_x: int = 0, center_y: int = 0):
         super().__init__(
             sprites_and_effects_collection=sprites_and_effects_collection,
             total_duration=total_duration,
@@ -157,7 +158,13 @@ class PointedTailStabBulletPattern(BulletPattern):
 
         # These variables control the starting coordinates of the tail.
         self.max_length_of_tail = 1600
-        self.angle = random.randint(0, 360)
+
+        self.starting_x = center_x  # int(self.soul.center_x - ((self.max_length_of_tail * .66) * self.cos_of_tail_angle_in_radians))
+        self.starting_y = center_y  # int(self.soul.center_y - ((self.max_length_of_tail * .66) * self.sin_of_tail_angle_in_radians))
+
+        dx = center_x - self.soul.center_x
+        dy = center_y - self.soul.center_y
+        self.angle = math.degrees(math.atan2(dy, dx)) + 90  # random.randint(0, 360)
         # The arcade module and the math module have their 0 degree starting points 90 degrees apart
         self.tail_angle = self.angle + 90
         self.tail_angle_in_radians = math.radians(self.tail_angle)
@@ -165,8 +172,6 @@ class PointedTailStabBulletPattern(BulletPattern):
         self.cos_of_angle_in_radians = math.cos(math.radians(self.angle))
         self.sin_of_tail_angle_in_radians = math.sin(math.radians(self.tail_angle))
         self.cos_of_tail_angle_in_radians = math.cos(math.radians(self.tail_angle))
-        self.starting_x = int(self.soul.center_x - ((self.max_length_of_tail * .66) * self.cos_of_tail_angle_in_radians))
-        self.starting_y = int(self.soul.center_y - ((self.max_length_of_tail * .66) * self.sin_of_tail_angle_in_radians))
 
         self.number_of_tail_segments = 12
         for i in range(self.number_of_tail_segments):
@@ -197,15 +202,15 @@ class PointedTailStabBulletPattern(BulletPattern):
         self.wavelength = 0.2
         self.time_elapsed_since_tail_retraction = 0.0
 
-        self.tail_extension_duration = 1.0
+        self.tail_extension_duration = 1.2
         self.ending_x = self.starting_x + (self.max_length_of_tail * math.cos(self.tail_angle_in_radians))
         self.ending_y = self.starting_y + (self.max_length_of_tail * math.sin(self.tail_angle_in_radians))
         self.tail_point_dx = self.ending_x - self.starting_x
         self.tail_point_dy = self.ending_y - self.starting_y
 
-        self.duration_before_tail_retract = 0.8
+        self.duration_before_tail_retract = 1.2
         self.distance_between_max_extended_tail_segments = self.max_length_of_tail / self.number_of_tail_segments
-        self.t = 0.8
+        self.t = 1.5
 
         # Animation flags
         self.tail_not_fully_extended = True

@@ -1,8 +1,11 @@
+import random
 from math import atan
 
 import arcade
 import pyglet.clock
+from arcade import LRBT
 
+import settings
 from animations.common_animations import DarknessFootstepAnimation
 from bullet_board import BulletBoard
 from bullet_patterns import RainingDiamondBulletPattern, CatPounceBulletPattern, PointedTailStabBulletPattern
@@ -74,22 +77,65 @@ class TailJabAttack(EnemyAttack):
         self.soul = soul
 
         self.time = 0.0
-        self.rate_of_bullet_pattern_spawns_in_seconds = 1.0
-        self.time_since_last_bullet_pattern_spawn = 0.0
+        self.rate_of_footsteps_in_seconds = 0.5
+        self.number_of_footsteps_between_tail_attack = 4
+        self.footsteps_spawned_this_cycle = 0
+        self.time_passed_before_attack = 0.0
+        self.total_delay_before_attack = .35
+        self.time_since_last_footstep_spawn = 0.0
+
+        self.tail_about_to_attack = False
+
+        self.current_footstep_center_x = 0
+        self.current_footstep_center_y = 0
+
+        self.inner_footstep_spawn_rect = LRBT(
+            left=settings.WINDOW_WIDTH * .1,
+            right=settings.WINDOW_WIDTH * .9,
+            bottom=0,
+            top=settings.WINDOW_HEIGHT
+        )
+
+        self.outer_footstep_spawn_rect = LRBT(
+            left=0,
+            right=settings.WINDOW_WIDTH,
+            bottom=0,
+            top=settings.WINDOW_HEIGHT
+        )
+
+        # Sounds
+        self.footstep_sound_1 = arcade.load_sound("assets/audio/snd_step1.wav")
+        self.footstep_sound_2 = arcade.load_sound("assets/audio/snd_step2.wav")
+        self.warning_sound = arcade.load_sound("assets/audio/battle/snd_credit_s.wav")
 
     def update_animation(self, delta_time: float):
         self.time += delta_time
 
-        self.time_since_last_bullet_pattern_spawn += delta_time
-        if self.time_since_last_bullet_pattern_spawn > self.rate_of_bullet_pattern_spawns_in_seconds:
-            self.spawn_tail_stab_bullet_pattern()
+        self.time_since_last_footstep_spawn += delta_time
+        if self.time_since_last_footstep_spawn > self.rate_of_footsteps_in_seconds:
             self.spawn_footstep_animation()
-            self.time_since_last_bullet_pattern_spawn -= self.rate_of_bullet_pattern_spawns_in_seconds
+            random.choice([self.footstep_sound_1.play(), self.footstep_sound_2.play()])
+            self.footsteps_spawned_this_cycle += 1
+            self.time_since_last_footstep_spawn -= self.rate_of_footsteps_in_seconds
+
+            if self.footsteps_spawned_this_cycle == self.number_of_footsteps_between_tail_attack:
+                self.footsteps_spawned_this_cycle = 0
+                self.tail_about_to_attack = True
+
+        if self.tail_about_to_attack:
+            self.time_passed_before_attack += delta_time
+            if self.time_passed_before_attack > self.total_delay_before_attack:
+                self.spawn_tail_stab_bullet_pattern()
+                self.tail_about_to_attack = False
+                self.time_passed_before_attack = 0.0
+
 
     def spawn_tail_stab_bullet_pattern(self):
         tail_stab_bullet_pattern = PointedTailStabBulletPattern(
             sprites_and_effects_collection=self.sprites_and_effects_collection,
             attacker=self.attacker,
+            center_x=self.current_footstep_center_x,
+            center_y=self.current_footstep_center_y,
             soul=self.soul
         )
 
@@ -97,14 +143,23 @@ class TailJabAttack(EnemyAttack):
         self.bullet_patterns.append(tail_stab_bullet_pattern)
 
     def spawn_footstep_animation(self):
+        footstep_spawn_coordinates_not_found = True
+
+        while footstep_spawn_coordinates_not_found:
+            center_coords = (random.randrange(settings.WINDOW_WIDTH), random.randrange(settings.WINDOW_HEIGHT))
+            if self.outer_footstep_spawn_rect.point_in_rect(center_coords) and not self.inner_footstep_spawn_rect.point_in_rect(center_coords):
+                self.current_footstep_center_x = int(center_coords[0])
+                self.current_footstep_center_y = int(center_coords[1])
+                footstep_spawn_coordinates_not_found = False
+
         footstep_animation = DarknessFootstepAnimation(
-            center_x=self.soul.center_x,
-            center_y=self.soul.center_y,
+            center_x=self.current_footstep_center_x,
+            center_y=self.current_footstep_center_y,
             color=arcade.color.RED
         )
 
         self.sprites_and_effects_collection.effects.append(footstep_animation)
-        self.sprites_and_effects_collection.soul_sprites.append(footstep_animation.sprite)
+        self.sprites_and_effects_collection.effects_sprites.append(footstep_animation.sprite)
 
     def execute_attack(self):
         self.sprites_and_effects_collection.effects.append(self)
@@ -112,6 +167,12 @@ class TailJabAttack(EnemyAttack):
         return 10.0
 
     def terminate_attack(self):
+        self.time = 0.0
+        self.footsteps_spawned_this_cycle = 0
+        self.time_passed_before_attack = 0.0
+        self.time_since_last_footstep_spawn = 0.0
+        self.tail_about_to_attack = False
+
         super().terminate_attack()
         if self in self.sprites_and_effects_collection.effects:
              self.sprites_and_effects_collection.effects.remove(self)
