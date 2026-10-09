@@ -651,7 +651,7 @@ class DarknessFootstepAnimation(SingleSpriteAnimation):
             center_y: int = 0,
             min_diameter: int = 240,
             line_thickness: int = 16,
-            rate_of_growth: int = 1,
+            rate_of_growth: float = 0.75,
             color: Color = arcade.color.WHITE
         ):
 
@@ -667,17 +667,18 @@ class DarknessFootstepAnimation(SingleSpriteAnimation):
         self.starting_scale_inversion = 32
         self.starting_scale = 1/self.starting_scale_inversion
 
-        self.image_width = min_diameter
-
-        #image = PIL.Image.new(
-        #    mode='RGBA',
-        #    size=(self.image_width, self.image_width),
-        #    color=(0, 0, 0, 0)
-        #)
-
-        #image_draw = ImageDraw.Draw(image)
+        self.image_width = min_diameter * 2
 
         """
+        image = PIL.Image.new(
+            mode='RGBA',
+            size=(self.image_width, self.image_width),
+            color=(0, 0, 0, 0)
+        )
+
+        image_draw = ImageDraw.Draw(image)
+
+
         for i in range(self.number_of_circles):
             color = (
                 self.color.r,
