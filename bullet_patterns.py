@@ -145,14 +145,12 @@ class CatPounceBulletPattern(BulletPattern):
 
 class PointedTailStabBulletPattern(BulletPattern):
     def __init__(self, sprites_and_effects_collection, soul: Soul = None, total_duration: float = 2.5, attacker = None,
-                 center_x: int = 0, center_y: int = 0):
+                 center_x: int = 0, center_y: int = 0, target_x: int = 0, target_y: int = 0):
         super().__init__(
             sprites_and_effects_collection=sprites_and_effects_collection,
             total_duration=total_duration,
             attacker=attacker
         )
-
-        self.soul = soul
 
         self.tail_segments = []
 
@@ -162,8 +160,8 @@ class PointedTailStabBulletPattern(BulletPattern):
         self.starting_x = center_x  # int(self.soul.center_x - ((self.max_length_of_tail * .66) * self.cos_of_tail_angle_in_radians))
         self.starting_y = center_y  # int(self.soul.center_y - ((self.max_length_of_tail * .66) * self.sin_of_tail_angle_in_radians))
 
-        dx = center_x - self.soul.center_x
-        dy = center_y - self.soul.center_y
+        dx = center_x - target_x
+        dy = center_y - target_y
         self.angle = math.degrees(math.atan2(dy, dx)) + 90  # random.randint(0, 360)
         # The arcade module and the math module have their 0 degree starting points 90 degrees apart
         self.tail_angle = self.angle + 90

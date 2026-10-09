@@ -104,3 +104,26 @@ def translate_matrix(points, dx, dy):
 
     return new_points
 
+def extend_line(line_points: tuple[tuple[int, int], tuple[int, int]], magnitude: float = 1.0) -> tuple[tuple[int, int], tuple[int, int]]:
+    """
+    Extends the line by multiplying its length by the given magnitude.
+    :param line_points: The coordinates of the provided line.
+    :param magnitude: The magnitude to multiply the lines length by.
+    :return:
+    """
+    start_x, start_y = line_points[0]
+    end_x, end_y = line_points[1]
+
+    dx = end_x - start_x
+    dy = end_y - start_y
+
+    half_dx = (dx / 2)
+    half_dy = (dy / 2)
+
+    center_x = start_x + half_dx
+    center_y = start_y + half_dy
+
+    new_start = (int(center_x - (half_dx * magnitude)), int(center_y - (half_dy * magnitude)))
+    new_end = (int(center_x + (half_dx * magnitude)), int(center_y + (half_dy * magnitude)))
+
+    return new_start, new_end

@@ -5,6 +5,7 @@ import arcade
 import pyglet.clock
 from arcade import LRBT
 
+import math_methods
 import settings
 from animations.common_animations import DarknessFootstepAnimation
 from bullet_board import BulletBoard
@@ -83,17 +84,21 @@ class TailJabAttack(EnemyAttack):
         self.time_passed_before_attack = 0.0
         self.total_delay_before_attack = .35
         self.time_since_last_footstep_spawn = 0.0
+        self.warning_flash_framerate = 0.06
 
         self.tail_about_to_attack = False
 
         self.current_footstep_center_x = 0
         self.current_footstep_center_y = 0
 
+        self.position_to_attack_x = 0
+        self.position_to_attack_y = 0
+
         self.inner_footstep_spawn_rect = LRBT(
             left=settings.WINDOW_WIDTH * .1,
             right=settings.WINDOW_WIDTH * .9,
-            bottom=0,
-            top=settings.WINDOW_HEIGHT
+            bottom=settings.WINDOW_HEIGHT * .1,
+            top=settings.WINDOW_HEIGHT * .9
         )
 
         self.outer_footstep_spawn_rect = LRBT(
@@ -107,6 +112,7 @@ class TailJabAttack(EnemyAttack):
         self.footstep_sound_1 = arcade.load_sound("assets/audio/snd_step1.wav")
         self.footstep_sound_2 = arcade.load_sound("assets/audio/snd_step2.wav")
         self.warning_sound = arcade.load_sound("assets/audio/battle/snd_credit_s.wav")
+        self.warning_sound_player = None
 
     def update_animation(self, delta_time: float):
         self.time += delta_time
@@ -120,15 +126,46 @@ class TailJabAttack(EnemyAttack):
 
             if self.footsteps_spawned_this_cycle == self.number_of_footsteps_between_tail_attack:
                 self.footsteps_spawned_this_cycle = 0
+                self.position_to_attack_x = self.soul.center_x
+                self.position_to_attack_y = self.soul.center_y
                 self.tail_about_to_attack = True
 
         if self.tail_about_to_attack:
             self.time_passed_before_attack += delta_time
+
             if self.time_passed_before_attack > self.total_delay_before_attack:
                 self.spawn_tail_stab_bullet_pattern()
                 self.tail_about_to_attack = False
                 self.time_passed_before_attack = 0.0
 
+    def draw(self):
+        if self.tail_about_to_attack:
+            extended_line = math_methods.extend_line(
+                line_points=((self.current_footstep_center_x, self.current_footstep_center_y),
+                             (self.position_to_attack_x, self.position_to_attack_y)),
+                magnitude=5.0
+            )
+            if int(self.time_passed_before_attack // self.warning_flash_framerate) % 2 == 0:
+                arcade.draw_line(
+                    start_x=extended_line[0][0],
+                    start_y=extended_line[0][1],
+                    end_x=extended_line[1][0],
+                    end_y=extended_line[1][1],
+                    color=arcade.color.YELLOW,
+                    line_width=3
+                )
+                if self.warning_sound_player:
+                    self.warning_sound.stop(self.warning_sound_player)
+                self.warning_sound_player = self.warning_sound.play(speed=1.02)
+            else:
+                arcade.draw_line(
+                    start_x=extended_line[0][0],
+                    start_y=extended_line[0][1],
+                    end_x=extended_line[1][0],
+                    end_y=extended_line[1][1],
+                    color=arcade.color.RED,
+                    line_width=3
+                )
 
     def spawn_tail_stab_bullet_pattern(self):
         tail_stab_bullet_pattern = PointedTailStabBulletPattern(
@@ -136,7 +173,8 @@ class TailJabAttack(EnemyAttack):
             attacker=self.attacker,
             center_x=self.current_footstep_center_x,
             center_y=self.current_footstep_center_y,
-            soul=self.soul
+            target_x=self.position_to_attack_x,
+            target_y=self.position_to_attack_y
         )
 
         self.sprites_and_effects_collection.effects.append(tail_stab_bullet_pattern)
