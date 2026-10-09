@@ -649,9 +649,9 @@ class DarknessFootstepAnimation(SingleSpriteAnimation):
             self,
             center_x: int = 0,
             center_y: int = 0,
-            min_diameter: int = 60,
-            line_thickness: int = 8,
-            rate_of_growth: int = 1.5,
+            min_diameter: int = 240,
+            line_thickness: int = 16,
+            rate_of_growth: int = 1,
             color: Color = arcade.color.WHITE
         ):
 
@@ -664,19 +664,20 @@ class DarknessFootstepAnimation(SingleSpriteAnimation):
 
         self.number_of_circles = 4
 
-        self.starting_scale_inversion = 8
+        self.starting_scale_inversion = 32
         self.starting_scale = 1/self.starting_scale_inversion
 
-        self.image_width = min_diameter * self.starting_scale_inversion
+        self.image_width = min_diameter
 
-        image = PIL.Image.new(
-            mode='RGBA',
-            size=(self.image_width, self.image_width),
-            color=(0, 0, 0, 0)
-        )
+        #image = PIL.Image.new(
+        #    mode='RGBA',
+        #    size=(self.image_width, self.image_width),
+        #    color=(0, 0, 0, 0)
+        #)
 
-        image_draw = ImageDraw.Draw(image)
+        #image_draw = ImageDraw.Draw(image)
 
+        """
         for i in range(self.number_of_circles):
             color = (
                 self.color.r,
@@ -692,14 +693,19 @@ class DarknessFootstepAnimation(SingleSpriteAnimation):
                 width=self.line_thickness,
             )
 
+        image.save('darkness_footstep.png')
+
         self.texture = Texture(image)
+        """
 
         sprite = Sprite(
-            path_or_texture=self.texture,
+            path_or_texture="assets/sprites/effects/darkness_footstep.png",
             center_x=self.center_x,
             center_y=self.center_y,
-            scale=1/self.starting_scale_inversion,
+            scale=1/self.starting_scale_inversion
         )
+
+        sprite.color = self.color
 
         super().__init__(
             sprite=sprite,
